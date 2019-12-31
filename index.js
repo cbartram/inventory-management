@@ -12,7 +12,7 @@ const session = require('express-session');
 
 const { version } = require('./package');
 
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3010;
 
 const app = express();
 
