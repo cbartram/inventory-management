@@ -22,7 +22,7 @@ if(!process.env.TEST) app.use(logger('dev'));
 
 // Configure the App
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../client/build')));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookie());
 app.use(body.json());
@@ -30,7 +30,7 @@ app.use(body.urlencoded({ extended: false }));
 // app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: false }));
 
 app.use('/api/v1', require('./routes/apiController'));
-app.get('/', (req, res) => res.json({ version, message: 'Inventory Management API' }));
+// app.get('/', (req, res) => res.json({ version, message: 'Inventory Management API' }));
 
 app.use((req, res, next) => next(createError(404)));
 app.use((err, req, res) => {

@@ -1,7 +1,10 @@
-FROM node:10
+# Format for ARM CPU's instead of intel's x86/64
+FROM arm32v7/node:latest
 
-WORKDIR /home/apps/inventory_management
+WORKDIR /var/www/html
+
 COPY package*.json ./
+
 # Install Dependencies
 RUN npm ci --only=production
 
@@ -10,4 +13,4 @@ COPY . .
 
 EXPOSE 3010
 
-CMD ["npm", "start"]
+CMD ["node", "index.js"]
