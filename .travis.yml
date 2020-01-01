@@ -1,0 +1,37 @@
+# @file .travis.yml
+# This file serves as the configuration for the main CI/CD pipeline for the Inventory Management
+language: node_js
+node_js:
+  - '10'
+#env:
+#  global:
+
+# Configures the sonarqube (sonarcloud) static code scan
+addons:
+  sonarcloud:
+    organization: cbartram-github
+
+install: npm install
+script:
+  - npm test
+  - sh ./scripts/coding_style_tests.sh
+  - sonar-scanner
+
+# Create a release only on merges into master/develop
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: sh ./scripts/deploy.sh
+  on:
+    all_branches: true
+    condition: $TRAVIS_BRANCH =~ ^master|develop$
+
+# Cache node_modules npm and sonar for faster builds
+cache:
+  directories:
+    - "$HOME/.npm"
+    - "./node_modules"
+    - "$HOME/.sonar/cache"
+
+notifications:
+  email: false

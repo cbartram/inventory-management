@@ -1,0 +1,17 @@
+{
+  "extends": "airbnb-base",
+  "rules": {
+    "no-unused-expressions": "off",
+    "max-len": "off",
+    "no-console": "off",
+    "camelcase": "warn",
+    "no-plusplus": "off",
+    "no-extend-native": "off"
+  },
+  "globals": {
+    "it": true,
+    "describe": true,
+    "Promise": true,
+    "window": true
+  }
+}
