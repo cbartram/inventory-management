@@ -18,7 +18,7 @@ const app = express();
 
 app.set('view engine', 'ejs');
 
-if (!process.env.TEST) app.use(logger('dev'));
+if (process.env.NODE_ENV !== 'test') app.use(logger('dev'));
 
 // Configure the App
 app.use(express.json());
@@ -30,7 +30,7 @@ app.use(body.urlencoded({ extended: false }));
 // app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: false }));
 
 app.use('/api/v1', require('./routes/apiController'));
-// app.get('/', (req, res) => res.json({ version, message: 'Inventory Management API' }));
+app.get('/', (req, res) => res.json({ version, message: 'Inventory Management API' }));
 
 app.use((req, res, next) => next(createError(404)));
 app.use((err, req, res) => {
@@ -41,7 +41,7 @@ app.use((err, req, res) => {
 });
 
 app.listen(port, () => {
-  !process.env.TEST && figlet('Spring', (err, data) => {
+  process.env.NODE_ENV !== 'test' && figlet('Spring', (err, data) => {
     console.log(chalk.green(data));
     console.log(chalk.green(`Version ${version}`));
     console.log(chalk.blueBright('----------------------------------'));
@@ -49,3 +49,5 @@ app.listen(port, () => {
     console.log(chalk.blueBright('----------------------------------'));
   });
 });
+
+module.exports = app;
