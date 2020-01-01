@@ -1,38 +1,39 @@
-# @file .travis.yml
-# This file serves as the configuration for the main CI/CD pipeline for the Inventory Management
 language: node_js
 node_js:
   - '10'
-#env:
-#  global:
 
-# Configures the sonarqube (sonarcloud) static code scan
+env:
+  global:
+    - secure: 3XQ+rFJ3YTfl0SojuMQDmEt6O2FOA3Vj5z79byutUc72B+gByiHuV3UflhNKM/ftHpCe95syrNNu18oq6EaPgO/5A3Ec31BAjAInX43183v+d4VCegToyulloCTjE5Cj9wrf7+79wbHZ/3EkH5nJ36oRY5kE2KtXlEIbF54EnSfBEnWjerh5xzJRJCx5Xc/3+PNA9ajlmmFlSIMMRStsLbwHeQSfna7+e3I//spj9cpFVLZle7EsrAlBmc3hQenLebGHXu8XQYT08Q8fJAypokpxSSpuY/f9szTHSs9a1W8EGgoMqxoGrxRxf5t9Yrq2MSK6gRUlrFFIoZFl2RwBk59WZU2vdxMeRtCe0rA2aEBOSlzE7lzXrEyBio6DkX+jN3SM36DQ6kZMcZLaB6sLaDVA32N/fQaACkAMPo6NMGGpjRObAuOu45CwZdUgUY7TQqlpWvRPsny4ZxGqZE2ZEvxOtdb5e4qb1Jbr/++7ABC/wXTfPDJ2O3QQuPqkebEJAH3JITn14AALDsW5qZOYeuxLL3yCzOiIClP5z+fQcwqIMJxCtsISbh6mStJdKVVRzB2puIWwqnUpTJvkezMxcjmWRI7Gs2vi3O+4uiwGTNhDji58Pwowa3Iqfo7rExQjydwJV3nAstY1hEgVyjc8xLueJiPlrAB7Zn/a0JV12l0=
+
 addons:
   sonarcloud:
     organization: cbartram-github
 
 install: npm install
+
 script:
   - npm test
   - npm run coverage
   - sh ./scripts/coding_style_tests.sh
   - sonar-scanner
+after_success:
+  - git config credential.helper "store --file=.git/credentials"
+  - echo "https://${GH_TOKEN}:@github.com" > .git/credentials
 
-# Create a release only on merges into master/develop
 deploy:
   provider: script
   skip_cleanup: true
   script: sh ./scripts/deploy.sh
   on:
     all_branches: true
-    condition: $TRAVIS_BRANCH =~ ^master|develop$
+    condition: "$TRAVIS_BRANCH =~ ^master|develop$"
 
-# Cache node_modules npm and sonar for faster builds
 cache:
   directories:
-    - "$HOME/.npm"
-    - "./node_modules"
-    - "$HOME/.sonar/cache"
+  - "$HOME/.npm"
+  - "./node_modules"
+  - "$HOME/.sonar/cache"
 
 notifications:
   email: false
