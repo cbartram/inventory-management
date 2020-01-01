@@ -1,4 +1,5 @@
-client/**
+client/*
 node_modules/**
 .idea/**
 *.iml
+*.test.js

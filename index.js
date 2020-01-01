@@ -30,6 +30,7 @@ app.use(body.urlencoded({ extended: false }));
 // app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: false }));
 
 app.use('/api/v1', require('./routes/apiController'));
+
 app.get('/', (req, res) => res.json({ version, message: 'Inventory Management API' }));
 
 app.use((req, res, next) => next(createError(404)));
