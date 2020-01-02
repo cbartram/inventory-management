@@ -12,9 +12,9 @@ env:
     - secure: "csdaJ7Ke9vT3PO6L9WA/4BtsFAGL3Q86ivFuCqpPxwV5dpDB2RBbHB2ClVTm5sDy23ML0JbieweT5jDj7LDs2hRQd1WPcAFCarO8yfWLrmRthjT9gas+Vd7karWwdoNmjMhT4qsONDuqJzxjYIySItxcdvg3Pru6uKgYOaMKNz0FFD7E/Pg/nd+7OtYqq/16evDlC6nR8O/5Htj8Qmm6ucwsvK17qAjZpVhm9acKh/hAEGiMa98jDuNbBaXqCVM+CTyp5DVxKTXhgvvE9bl4r3t1Z6oQz1UfIGAp9UdOUm31ze753+5CSNNXVJ98wCI2Nwpld6EKVdwWM80AntPvxUET7InpStCc4qFeqDzJW/vaFanO1FTVZQuZsXsarS4jV6xbQ8XVLQdAxX9SdZZw2rSqxtEfThDXJe/+it3f8DDFX8+H+lM0SZHzsba+PqXynTSaYr+p6zyaTdmXppOVrV4l00VlPE68hcZogyDbkjBx3RpDIClr6YunImN+v+6IFt3CK4tBzGBXYqwzrodP74EK8pWfsxbeUOTUlzR0D4jyeHkYdZGJXHys9xjkIPInzEAjcbz91xfOrCYNcj7blPIgOHg4I65wl5J8UlY0Fz0r9lVyDBsy/V7PySzk5fGEnAK9b4Ful35U0xCUdW7BvlgaId3mJ4EKITLUY2O+bWs="
     - secure: "1GKNsJt2AtPbmG6dSOY+kB1ABZwEzp7pS0bBfO6Vv+D7btPWEtUMNEgMleRz0VKWkU1gb//ORCCKQN/pmbEgwIgq706hv8zKjT342MoWNVetnq+VjOm4o1Gk0uQrUGzP7nGSalYC2KoPpt+1J6INf2xEQk6MpvzYpIQBY8aBCB7vJquMmnvpUW/wcQaB6bvndHUOC+1s0KY88III07Q+c3feI7MSTWZ7g3T7PCRAJGYKZhA9QIAFJ6WNmXjqfI90UdhEAIQrl7ggy0KrG5m+YtZv8Ei2D8o6kB8VCeFMN/k9V2PokNiG6KMt8qPi6WNOekQGvBJoV4qrSsZrKWSUZC29+vlGtNNgU0lbtq2GHoTPZ5x4A/LRpFPE+p2pwgqMvZypiXggTR3d7ruuwCFnpaD4USyMKnTAP300C+8bm5JZC9wL1ZDQpNCQ7mzkRhWoCHHgB4SbkCnq/udG75+Jqo7kSrLiDxGZ0jaAidlWbqbz/C0VVkPTQNseKBdXNhgIaubQyzIt0iOKEmP0jctpIQeYByjY/cSkwLBObSf1EgsIF4HU40bK7TdDNFVdFWdN8mdrH3SCQYKZWn7MdXgEmkmmY0OWo89jrymabpFtT33rW0Mqp930O7P1fN6SwrzdJv63Lfy+32+W5HPLPKXStQTj2+2yikg7bf+PPSBI2eA="
 
-addons:
-  sonarcloud:
-    organization: cbartram-github
+#addons:
+#  sonarcloud:
+#    organization: cbartram-github
 
 # Download Latest version of docker
 #before_install:
@@ -30,7 +30,7 @@ script:
   - npm test
   - npm run coverage
   - sh ./scripts/coding_style_tests.sh
-  - sonar-scanner
+#  - sonar-scanner
 after_success:
   - git config credential.helper "store --file=.git/credentials"
   - echo "https://${GH_TOKEN}:@github.com" > .git/credentials
