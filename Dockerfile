@@ -13,6 +13,12 @@ RUN npm set unsafe-perm true
 # perform an NPM install and also a react build
 RUN npm install
 
+WORKDIR /var/www/html/client
+RUN npm install
+RUN npm run build
+
+WORKDIR /var/www/html
+
 # Bundle app source
 COPY . .
 
