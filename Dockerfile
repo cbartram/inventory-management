@@ -5,6 +5,9 @@ WORKDIR /var/www/html
 
 COPY package*.json ./
 
+# Ensures the post install gets triggered correctly with root priv
+RUN npm set unsafe-perm true
+
 # Install Dependencies
 # a "postinstall" step from npm will also cd into the /client dir
 # perform an NPM install and also a react build

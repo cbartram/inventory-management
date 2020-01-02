@@ -1,10 +1,13 @@
 {
   "name": "inventory-management",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Inventory management backend providing API routes to create read and update inventory",
   "main": "index.js",
+  "config": {
+    "unsafe-perm":true
+  },
   "scripts": {
-    "postinstall": "cd client && npm install && npm run build",
+    "postinstall": "cd client && npm install --unsafe-perm && npm run build",
     "start": "node index.js",
     "start:dev": "nodemon index.js",
     "coverage": "CI=true NODE_ENV=test nyc --reporter=lcovonly --reporter=text ./node_modules/.bin/mocha './test/**.test.js' --exit --timeout 10000",
