@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 process.env.NODE_ENV = 'test';
+process.env.PORT = 5000;
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -18,7 +19,6 @@ describe('API Tests', () => {
         .get('/')
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.should.be.a('object');
           done();
         });
     });
