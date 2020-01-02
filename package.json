@@ -1,6 +1,6 @@
 {
   "name": "inventory-management",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Inventory management backend providing API routes to create read and update inventory",
   "main": "index.js",
   "config": {

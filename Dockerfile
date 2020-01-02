@@ -4,7 +4,7 @@ FROM arm32v7/node:latest
 WORKDIR /app
 
 COPY package*.json ./
-COPY client/ ./
+COPY client ./
 
 # Install Dependencies
 # a "postinstall" step from npm will also cd into the /client dir
