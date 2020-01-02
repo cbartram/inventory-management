@@ -22,17 +22,16 @@ if (process.env.NODE_ENV !== 'test') app.use(logger('dev'));
 
 // Configure the App
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../client/build')));
+app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookie());
 app.use(body.json());
 app.use(body.urlencoded({ extended: false }));
 // app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: false }));
 
+// Any routes that do not begin with /api/v1 are redirected to the frontend
 app.use('/api/v1', require('./routes/apiController'));
-//Added additional code
-
-app.get('/', (req, res) => res.json({ version, message: 'Inventory Management API' }));
+app.get('*', (req,res) => res.sendFile(path.join(__dirname, 'client/build/index.html')));
 
 app.use((req, res, next) => next(createError(404)));
 app.use((err, req, res) => {

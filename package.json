@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "start:dev": "nodemon index.js",
     "coverage": "CI=true NODE_ENV=test nyc --reporter=lcovonly --reporter=text ./node_modules/.bin/mocha './test/**.test.js' --exit --timeout 10000",
     "test": "CI=true NODE_ENV=test ./node_modules/.bin/mocha './test/**/**.test.js' --timeout 10000 --exit",
     "bump": "npm version patch --force",
