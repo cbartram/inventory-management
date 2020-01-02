@@ -2,3 +2,4 @@ node_modules
 npm-debug.log
 .idea
 inventory-management.iml
+.nyc_output

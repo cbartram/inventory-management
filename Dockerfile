@@ -1,23 +1,15 @@
 # Format for ARM CPU's instead of intel's x86/64
 FROM arm32v7/node:latest
 
-WORKDIR /var/www/html
+WORKDIR /app
 
 COPY package*.json ./
-
-# Ensures the post install gets triggered correctly with root priv
-RUN npm set unsafe-perm true
+COPY client/ ./
 
 # Install Dependencies
 # a "postinstall" step from npm will also cd into the /client dir
 # perform an NPM install and also a react build
-RUN npm install
-
-WORKDIR /var/www/html/client
-RUN npm install
-RUN npm run build
-
-WORKDIR /var/www/html
+RUN npm install --only=production
 
 # Bundle app source
 COPY . .
