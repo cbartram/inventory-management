@@ -16,8 +16,9 @@ describe('API Tests', () => {
   describe('GET /', () => {
     it('Successfully retrieves API meta-data', (done) => {
       chai.request(server)
-        .get('/')
+        .get('/api/v1')
         .end((err, res) => {
+          res.body.should.be.a('object');
           res.should.have.status(200);
           done();
         });
