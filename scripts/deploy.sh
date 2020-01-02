@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
 # This File Runs Coding style (eslint) tests to ensure there are no errors in the new code.
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -47,7 +48,8 @@ PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $
 #  echo ${i}
 #done
 
-
+echo "${GREEN}Logging into docker account for user: ${DOCKER_USERNAME} ${NC}"
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
 echo "${GREEN}Building docker image for application version: ${PACKAGE_VERSION} ${NC}"
 docker build -t cbartram/inventory_management:$PACKAGE_VERSION .
