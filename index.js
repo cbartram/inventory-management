@@ -8,6 +8,7 @@ const chalk = require('chalk');
 const logger = require('morgan');
 const cookie = require('cookie-parser');
 const body = require('body-parser');
+const methodOverride = require('method-override');
 // const session = require('express-session');
 
 const { version } = require('./package');
@@ -24,9 +25,11 @@ if (process.env.NODE_ENV !== 'test') app.use(logger('dev'));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(express.urlencoded({ extended: false }));
+app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(cookie());
 app.use(body.json());
 app.use(body.urlencoded({ extended: false }));
+
 // app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: false }));
 
 // Any routes that do not begin with /api/v1 are redirected to the frontend

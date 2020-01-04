@@ -1,22 +1,27 @@
 import React from 'react';
 import './App.css';
+import Navbar from "./components/Navbar/Navbar";
+import {Button, Icon} from 'semantic-ui-react';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          1.0.3
-        </a>
-      </header>
+    <div>
+      <Navbar />
+      <div className="container">
+          <div className="container-margin">
+            <div className="inner-container">
+                <div className="collection-container">
+                    <Button primary>
+                        <Icon name="plus" />
+                        New Category
+                    </Button>
+                </div>
+                <div className="main-content">
+                    <h3>Main content</h3>
+                </div>
+            </div>
+          </div>
+      </div>
     </div>
   );
 }

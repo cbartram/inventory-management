@@ -1,6 +1,7 @@
 const express = require('express');
-
 const router = express.Router();
+
+const categoryController = require('./categoryController');
 
 const { version } = require('../package');
 
@@ -11,6 +12,6 @@ router.get('/', (req, res) => {
   });
 });
 
-// router.use('/api/v1/skill', skillController);
+router.use('/category', categoryController);
 
 module.exports = router;
