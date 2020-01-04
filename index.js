@@ -9,6 +9,7 @@ const logger = require('morgan');
 const cookie = require('cookie-parser');
 const body = require('body-parser');
 const methodOverride = require('method-override');
+const cors = require('cors');
 // const session = require('express-session');
 
 const { version } = require('./package');
@@ -22,6 +23,7 @@ app.set('view engine', 'ejs');
 if (process.env.NODE_ENV !== 'test') app.use(logger('dev'));
 
 // Configure the App
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(express.urlencoded({ extended: false }));

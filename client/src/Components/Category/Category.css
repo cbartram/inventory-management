@@ -1,0 +1,42 @@
+.category.active {
+    background: #e8f0fe;
+    color: rgb(26, 115, 232);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.category {
+    background: white;
+    transition: background-color .1s ease;
+    cursor: pointer;
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    overflow: hidden;
+    position: relative;
+    border-radius: 0 50px 50px 0;
+    padding: 8px 0 8px 34px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.category-icon {
+    height: 44px;
+    width: 44px;
+    margin-right: 16px;
+    background-color: #f7f7f8;
+    background-position: center;
+    background-size: cover;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.category-name {
+    line-height: 16px;
+    margin-top: 6px;
+    font-weight: bold;
+}
