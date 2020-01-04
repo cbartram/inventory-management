@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import Navbar from "./components/Navbar/Navbar";
+import Navbar from "./components/Navbar/Navbar.js";
 import {Button, Icon} from 'semantic-ui-react';
 
 function App() {
