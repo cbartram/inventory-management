@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import './CreateCategoryModal.css';
 import {
     Modal,
-    Header,
-    Image
 } from 'semantic-ui-react';
 import TextField from "@material-ui/core/TextField";
 

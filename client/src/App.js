@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import './App.css';
 import Navbar from "./Components/Navbar/Navbar.js";
 import {Button, Icon} from 'semantic-ui-react';
-import { getRequestUrl, GET_ALL_CATEGORIES } from "./constants";
+import {getRequestUrl, GET_ALL_CATEGORIES, CREATE_CATEGORY} from "./constants";
 import Category from "./Components/Category/Category";
 import CreateCategoryModal from "./Components/CreateCategoryModal/CreateCategoryModal";
 
@@ -23,13 +23,23 @@ class App extends Component {
         if(categories.length > 0) this.setState({ categories, activeCategory: categories[0].name });
     }
 
-    handleModalSubmit() {
-        const { newCategory } = this.state;
+    async handleModalSubmit(name) {
+        const { newCategory, categories } = this.state;
         if(newCategory.length === 0)
             // Don't close the modal if its invalid
             this.setState({ newCategoryError: true });
-        else
-            this.setState({ open: false });
+        else {
+            const response = await ( await fetch(getRequestUrl(CREATE_CATEGORY), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                },
+                body: JSON.stringify({ name: newCategory })
+
+            })).json();
+            this.setState({open: false, newCategory: '', categories: [...categories, response] });
+        }
     }
 
     render() {

@@ -7,18 +7,25 @@ const ddb = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 const uuid = require('uuid/v1');
 
 router.post('/create', async (req, res) => {
+  if (!req.body.name) {
+    res.json({ error: true, message: 'Required body parameter missing: name' });
+    return;
+  }
+
+  const id = uuid().substring(10);
+  const Item = {
+    pid: `category-${id}`,
+    sid: `category-${id}`,
+    name: req.body.name,
+  };
   const params = {
     TableName: 'inventory',
-    Item: {
-      pid: 'category',
-      sid: `category-${uuid().substring(10)}`,
-      name: req.body.name,
-    },
+    Item,
   };
 
   try {
-    const response = await ddb.put(params).promise();
-    res.json(response);
+    await ddb.put(params).promise();
+    res.json(Item);
   } catch (err) {
     console.log('[ERROR] POST -- /api/v1/category/create There was an error attempting to create a new category: ', req.body, err);
   }
@@ -35,13 +42,10 @@ router.post('/create', async (req, res) => {
 router.get('/', async (req, res) => {
   const params = {
     TableName: 'inventory',
-    ExpressionAttributeValues: {
-      ':pid': 'category',
-    },
-    KeyConditionExpression: 'pid = :pid',
   };
   try {
-    const response = await ddb.query(params).promise();
+    const response = await ddb.scan(params).promise();
+    console.log('[INFO] Successfully found: ', response.Items.length);
     res.json(response.Items);
   } catch (err) {
     console.log('[ERROR] GET -- /api/v1/category/ There was an error attempting to retrieve all categories: ', req.body, err);
