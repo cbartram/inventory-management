@@ -2,9 +2,8 @@ const { NODE_ENV } = process.env;
 const express = require('express');
 
 const router = express.Router();
-const uuid = require('uuid/v1');
+const uuid = require('uuid/v4');
 const AWS = require('aws-sdk');
-
 
 /**
  * Creates a new item which is slotted in a specific category
@@ -21,9 +20,10 @@ router.post('/create', async (req, res) => {
     res.json({ error: true, message: `Category value missing from request body. Category = ${req.body.category}` });
   }
 
+  NODE_ENV !== 'test' && console.log(`[INFO] Attempting to create item ${req.body.name} for category ${req.body.category}`);
   const id = uuid().substring(10);
   const Item = {
-    pid: `category-${id}`,
+    pid: req.body.category,
     sid: `item-${id}`,
     name: req.body.name,
     quantity: req.body.quantity,
@@ -43,8 +43,39 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// router.get('/:categoryId', (req, res) => {
-//
-// });
+/**
+ * Finds all items within a given category
+ */
+router.get('/:categoryId', async (req, res) => {
+  const ddb = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
+
+  if (!req.params.categoryId) {
+    console.log('[ERROR] Category Id is missing from the request parameters: Category Id = ', req.params.categoryId);
+    res.json({ error: true, message: `Category Id is missing from the request parameters: Category Id = ${req.params.categoryId}` });
+  }
+
+  const params = {
+    TableName: 'inventory',
+    KeyConditionExpression: '#pid = :pid and begins_with(#sid, :sid)',
+    ExpressionAttributeNames: {
+      '#pid': 'pid',
+      '#sid': 'sid',
+    },
+    ExpressionAttributeValues: {
+      ':pid': req.params.categoryId,
+      ':sid': 'item-',
+    },
+  };
+  try {
+    NODE_ENV !== 'test' && console.log('[INFO] Attempting to find all items for category: ', req.params.categoryId);
+    const response = await ddb.query(params).promise();
+    NODE_ENV !== 'test' && console.log(`[INFO] Successfully found: ${response.Items.length} items for category Id: ${req.params.categoryId}.`);
+    res.json(response.Items);
+  } catch (err) {
+    NODE_ENV !== 'test' && console.log('[ERROR] GET -- /api/v1/items/ There was an error attempting to retrieve all items for given category: ', req.body, err);
+    res.status(500);
+    res.json({ error: true, message: err.message });
+  }
+});
 
 module.exports = router;

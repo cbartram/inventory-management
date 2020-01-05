@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './CreateCategoryModal.css';
 import {
-    Button,
     Modal,
 } from 'semantic-ui-react';
 import TextField from "@material-ui/core/TextField";

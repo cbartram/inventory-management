@@ -3,7 +3,7 @@ const express = require('express');
 
 const router = express.Router();
 const AWS = require('aws-sdk');
-const uuid = require('uuid/v1');
+const uuid = require('uuid/v4');
 
 router.post('/create', async (req, res) => {
   const ddb = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
@@ -15,7 +15,7 @@ router.post('/create', async (req, res) => {
 
   const id = uuid().substring(10);
   const Item = {
-    pid: `category-${id}`,
+    pid: 'category',
     sid: `category-${id}`,
     name: req.body.name,
   };
@@ -46,9 +46,18 @@ router.get('/', async (req, res) => {
   const ddb = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
   const params = {
     TableName: 'inventory',
+    KeyConditionExpression: '#pid = :pid and begins_with(#sid, :sid)',
+    ExpressionAttributeNames: {
+      '#pid': 'pid',
+      '#sid': 'sid',
+    },
+    ExpressionAttributeValues: {
+      ':pid': 'category',
+      ':sid': 'category-',
+    },
   };
   try {
-    const response = await ddb.scan(params).promise();
+    const response = await ddb.query(params).promise();
     NODE_ENV !== 'test' && console.log(`[INFO] Successfully found: ${response.Items.length} categories.`);
     res.json(response.Items);
   } catch (err) {
@@ -57,20 +66,5 @@ router.get('/', async (req, res) => {
     res.json({ error: true, message: err.message });
   }
 });
-
-// router.get('/:id', (req, res) => {
-//   // const params = {
-//   //     TableName: 'inventory',
-//   //     Key: {
-//   //         pid: 'category'
-//   //     }
-//   // };
-//   // try {
-//   //     const res = await ddb.get(params).promise();
-//   //     res.json(res);
-//   // } catch(err) {
-//   //     console.log("[ERROR] GET -- /api/v1/category/ There was an error attempting to retrieve all categories: ", req.body, err);
-//   // }
-// });
 
 module.exports = router;

@@ -15,20 +15,21 @@ export default class AddItemModal extends Component {
             <Modal.Content>
                 <div className="d-flex flex-column">
                   <TextField
-                      className="mb-2"
+                      className="mb-3"
                       variant="outlined"
                       label="Item Name"
                       onChange={({ target }) => this.props.onChange(target.value)}
                       error={this.props.error}
-                      helperText={this.props.error ? 'Your category name must be at least 1 character long.' : null }
+                      helperText={this.props.error ? 'Your item name must be at least 1 character long.' : null }
                   />
                     <TextField
                         select
                         label="Select"
                         value={this.props.quantity}
                         onChange={({ target }) => this.props.onQuantityChange(target.value)}
-                        helperText="Quantity Available"
+                        helperText="Quantity of this item available"
                         variant="outlined"
+                        error={this.props.error}
                     >
                         {
                             times(10, (i) => {

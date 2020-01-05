@@ -12,7 +12,7 @@ export default class Category extends Component {
                   </div>
                   <div className="d-flex flex-column">
                       <span className={`category-name ${this.props.active ? 'active' : '' }`}>{ this.props.children }</span>
-                      <span className="text-muted">Private &middot; 0 items</span>
+                      <span className="text-muted">Private &middot; {this.props.items} items</span>
                   </div>
               </div>
           </div>
