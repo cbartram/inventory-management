@@ -32,10 +32,7 @@ app.use(cookie());
 app.use(body.urlencoded({ extended: false }));
 app.use(body.json());
 
-AWS.config.update({
-  region: 'us-east-1',
-  credentials: new AWS.SharedIniFileCredentials(),
-});
+AWS.config.update({ region: 'us-east-1' });
 
 // app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: false }));
 
