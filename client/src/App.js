@@ -5,6 +5,7 @@ import {Button, Icon} from 'semantic-ui-react';
 import {getRequestUrl, GET_ALL_CATEGORIES, CREATE_CATEGORY} from "./constants";
 import Category from "./Components/Category/Category";
 import CreateCategoryModal from "./Components/CreateCategoryModal/CreateCategoryModal";
+import AddItemsMessage from "./Components/AddItemsMessage/AddItemsMessage";
 
 class App extends Component {
     constructor(props) {
@@ -69,7 +70,7 @@ class App extends Component {
                                 }
                             </div>
                             <div className="main-content">
-                                <h3>Main content</h3>
+                                <AddItemsMessage />
                             </div>
                         </div>
                     </div>

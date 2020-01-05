@@ -10,6 +10,7 @@ const cookie = require('cookie-parser');
 const body = require('body-parser');
 const methodOverride = require('method-override');
 const cors = require('cors');
+const AWS = require('aws-sdk');
 // const session = require('express-session');
 
 const { version } = require('./package');
@@ -24,13 +25,17 @@ if (process.env.NODE_ENV !== 'test') app.use(logger('dev'));
 
 // Configure the App
 app.use(cors());
-// app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(cookie());
 app.use(body.urlencoded({ extended: false }));
 app.use(body.json());
+
+AWS.config.update({
+  region: 'us-east-1',
+  credentials: new AWS.SharedIniFileCredentials(),
+});
 
 // app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: false }));
 

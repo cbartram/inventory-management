@@ -1,13 +1,14 @@
+const { NODE_ENV } = process.env;
 const express = require('express');
 
 const router = express.Router();
 const AWS = require('aws-sdk');
-
-const ddb = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 const uuid = require('uuid/v1');
 
 router.post('/create', async (req, res) => {
+  const ddb = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
   if (!req.body.name) {
+    NODE_ENV !== 'test' && console.log('[ERROR] Required body parameter missing: name');
     res.json({ error: true, message: 'Required body parameter missing: name' });
     return;
   }
@@ -27,7 +28,9 @@ router.post('/create', async (req, res) => {
     await ddb.put(params).promise();
     res.json(Item);
   } catch (err) {
-    console.log('[ERROR] POST -- /api/v1/category/create There was an error attempting to create a new category: ', req.body, err);
+    NODE_ENV !== 'test' && console.log('[ERROR] POST -- /api/v1/category/create There was an error attempting to create a new category: ', req.body, err);
+    res.status(500);
+    res.json({ error: true, message: err.message });
   }
 });
 //
@@ -40,15 +43,18 @@ router.post('/create', async (req, res) => {
 // });
 
 router.get('/', async (req, res) => {
+  const ddb = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
   const params = {
     TableName: 'inventory',
   };
   try {
     const response = await ddb.scan(params).promise();
-    console.log('[INFO] Successfully found: ', response.Items.length);
+    NODE_ENV !== 'test' && console.log(`[INFO] Successfully found: ${response.Items.length} categories.`);
     res.json(response.Items);
   } catch (err) {
-    console.log('[ERROR] GET -- /api/v1/category/ There was an error attempting to retrieve all categories: ', req.body, err);
+    NODE_ENV !== 'test' && console.log('[ERROR] GET -- /api/v1/category/ There was an error attempting to retrieve all categories: ', req.body, err);
+    res.status(500);
+    res.json({ error: true, message: err.message });
   }
 });
 

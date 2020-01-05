@@ -1,0 +1,38 @@
+
+.add-items-container {
+    -webkit-font-smoothing: antialiased;
+    text-size-adjust: 100%;
+    font-family: 'Google Sans',Roboto,Arial,sans-serif;
+    white-space: normal;
+    -webkit-tap-highlight-color: transparent;
+    color: #202124;
+    margin: 60px auto;
+    text-align: center;
+    width: calc(100% - 160px);
+}
+
+.add-items-image {
+    width: 100px;
+    margin-bottom: 12px;
+}
+
+.add-items-header {
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: bolder;
+    margin-bottom: 12px;
+    font-family: GoogleSans, Roboto,Arial,sans-serif !important;
+    color: #202124;
+    text-align: center;
+}
+
+.add-items-subtext {
+    font-family: GoogleSans, Roboto,Arial,sans-serif !important;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+    margin-bottom: 24px;
+    color: #202124;
+    text-align: center;
+    white-space: normal;
+}
