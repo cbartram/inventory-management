@@ -1,0 +1,32 @@
+/* Modal dimmer color */
+.dimmed.dimmable > .ui.modals.dimmer.visible {
+    background: rgba(82, 95, 127, .7) !important;
+}
+
+/* Needed to position the modal in the center of the screen */
+.ui.modal {
+    position: relative !important;
+    height: auto !important;
+    padding: 24px;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 12px 15px 0px !important;
+}
+
+.header {
+    padding: 0 !important;
+}
+
+.category-modal {
+    width: 400px !important;
+}
+
+.category-modal-header {
+    font-family: GoogleSans, serif;
+    font-size: 14px;
+    line-height: 14px;
+    font-weight: 500;
+}
+
+.ui.loader:after {
+    border-color: #6772e5 transparent transparent !important;
+}

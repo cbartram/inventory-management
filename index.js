@@ -36,7 +36,8 @@ app.use(body.urlencoded({ extended: false }));
 
 // Any routes that do not begin with /api/v1 are redirected to the frontend
 app.use('/api/v1', require('./routes/apiController'));
-app.get('*', (req,res) => res.sendFile(path.join(__dirname, 'client/build/index.html')));
+
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'client/build/index.html')));
 
 app.use((req, res, next) => next(createError(404)));
 app.use((err, req, res) => {
