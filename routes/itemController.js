@@ -1,9 +1,10 @@
-const { NODE_ENV } = process.env;
+const { NODE_ENV, GOOGLE_SEARCH_URL } = process.env;
 const express = require('express');
 
 const router = express.Router();
 const uuid = require('uuid/v4');
 const AWS = require('aws-sdk');
+const request = require('request-promise-native');
 
 /**
  * Creates a new item which is slotted in a specific category
@@ -41,6 +42,20 @@ router.post('/create', async (req, res) => {
     res.status(500);
     res.json({ error: true, message: err.message });
   }
+});
+
+/**
+ * Uses the google search API to
+ */
+router.get('/image/query/:query', (req, res) => {
+  console.log('[INFO] Fetching images for search query: ', req.params.query);
+  request(`${GOOGLE_SEARCH_URL}${req.params.query}`).then(response => {
+    const data = JSON.parse(response);
+    const images = data.items
+        .map(({ pagemap }) =>  pagemap.cse_image.map(i => i.src))
+        .reduce((prev, curr) => [...prev, ...curr]);
+    return res.json({ images })
+  });
 });
 
 /**
