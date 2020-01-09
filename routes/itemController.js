@@ -49,12 +49,12 @@ router.post('/create', async (req, res) => {
  */
 router.get('/image/query/:query', (req, res) => {
   console.log('[INFO] Fetching images for search query: ', req.params.query);
-  request(`${GOOGLE_SEARCH_URL}${req.params.query}`).then(response => {
+  request(`${GOOGLE_SEARCH_URL}${req.params.query}`).then((response) => {
     const data = JSON.parse(response);
     const images = data.items
-        .map(({ pagemap }) =>  pagemap.cse_image.map(i => i.src))
-        .reduce((prev, curr) => [...prev, ...curr]);
-    return res.json({ images })
+      .map(({ pagemap }) => pagemap.cse_image.map((i) => i.src))
+      .reduce((prev, curr) => [...prev, ...curr]);
+    return res.json({ images });
   });
 });
 
