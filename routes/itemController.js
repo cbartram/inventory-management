@@ -54,6 +54,8 @@ router.get('/image/query/:query', (req, res) => {
     const images = data.items
       .map(({ pagemap }) => pagemap.cse_image.map((i) => i.src))
       .reduce((prev, curr) => [...prev, ...curr]);
+
+    console.log("Images: ", images);
     return res.json({ images });
   });
 });
