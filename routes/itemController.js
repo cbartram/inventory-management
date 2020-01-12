@@ -45,19 +45,45 @@ router.post('/create', async (req, res) => {
 });
 
 /**
- * Uses the google search API to
+ * Uses the google search API to find all images
+ * for each item in the category
  */
-router.get('/image/query/:query', (req, res) => {
+router.get('/image/:categoryId/:query', async (req, res) => {
   console.log('[INFO] Fetching images for search query: ', req.params.query);
-  request(`${GOOGLE_SEARCH_URL}${req.params.query}`).then((response) => {
-    const data = JSON.parse(response);
-    const images = data.items
-      .map(({ pagemap }) => pagemap.cse_image.map((i) => i.src))
-      .reduce((prev, curr) => [...prev, ...curr]);
+  const ddb = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
-    console.log("Images: ", images);
-    return res.json({ images });
-  });
+  const params = {
+    TableName: 'inventory',
+    KeyConditionExpression: '#pid = :pid and begins_with(#sid, :sid)',
+    ExpressionAttributeNames: {
+      '#pid': 'pid',
+      '#sid': 'sid',
+    },
+    ExpressionAttributeValues: {
+      ':pid': req.params.categoryId,
+      ':sid': 'item-',
+    },
+  };
+  try {
+    NODE_ENV !== 'test' && console.log('[INFO] Attempting to find all items for category: ', req.params.categoryId);
+    const response = await ddb.query(params).promise();
+    NODE_ENV !== 'test' && console.log(`[INFO] Successfully found: ${response.Items.length} items for category Id: ${req.params.categoryId}.`);
+    response.Items.forEach((item) => {
+      console.log('Item: ', item);
+    });
+
+    request(`${GOOGLE_SEARCH_URL}${req.params.query}`).then((r) => {
+      const data = JSON.parse(r);
+      const images = data.items
+        .map(({ pagemap }) => pagemap.cse_image.map((i) => i.src))
+        .reduce((prev, curr) => [...prev, ...curr]);
+
+      console.log('Images: ', images);
+      return res.json({ images });
+    });
+  } catch (e) {
+    console.log('[ERROR] Failed to fetch items from category for getting images for each item', e);
+  }
 });
 
 /**
