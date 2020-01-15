@@ -30,4 +30,4 @@ export const GET_ALL_CATEGORIES = '/api/v1/category/';
 export const GET_ITEMS = '/api/v1/item';
 export const CREATE_CATEGORY = '/api/v1/category/create';
 export const CREATE_ITEM = '/api/v1/item/create';
-export const GET_IMAGES = '/api/v1/item/images/query/';
+export const GET_IMAGES = '/api/v1/item/image/query/';

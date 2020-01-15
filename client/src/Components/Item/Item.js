@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react';
+import React from 'react';
 import './Item.css';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -9,7 +9,6 @@ import Typography from '@material-ui/core/Typography';
 import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import SkipNextIcon from '@material-ui/icons/SkipNext';
-import {GET_IMAGES} from "../../constants";
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -41,16 +40,6 @@ const useStyles = makeStyles(theme => ({
 export default function Item(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const [image, setImage] = useState('');
-  useEffect( () => {
-    async function getImages() {
-      const images = await (await fetch(GET_IMAGES + props.name)).json();
-      console.log('Images: ', images);
-      setImage(images);
-    }
-    getImages();
-
-  });
       return (
           <Card className={classes.card}>
             <div className={classes.details}>
@@ -76,7 +65,7 @@ export default function Item(props) {
             </div>
             <CardMedia
                 className={classes.cover}
-                image={image[0]}
+                image={props.image}
                 title="Live from space album cover"
             />
           </Card>

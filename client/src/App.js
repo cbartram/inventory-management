@@ -168,7 +168,7 @@ class App extends Component {
                                 }
                             </div>
                             <div className="main-content">
-                                { this.state.items[this.state.activeCategory].length > 0 ? <ItemList items={this.state.items[this.state.activeCategory]} /> :
+                                { this.state.items[this.state.activeCategory].length > 0 ? <ItemList category={this.state.activeCategory} items={this.state.items[this.state.activeCategory]} /> :
                                 <AddItemsMessage onClick={() => this.setState({ addItemOpen: true })} />}
                             </div>
                         </div>

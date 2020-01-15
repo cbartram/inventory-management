@@ -65,6 +65,7 @@ router.get('/image/query/:categoryId', async (req, res) => {
     });
 
 
+    // TODO needs to return { name: [...] } instead of [{}, {}, {} ...]
     const cachedItems = await Promise.all(cachePromises);
     cachedItems.forEach((item, idx) => {
       const { name } = Items[idx];
@@ -87,7 +88,15 @@ router.get('/image/query/:categoryId', async (req, res) => {
       }
     });
 
-    await Promise.all(promises).then((d) => res.json(d));
+    await Promise.all(promises).then((data) => {
+      res.json(data.reduce((prev, curr) => {
+        const key = Object.keys(curr)[0];
+        return {
+          ...prev,
+          [key]: curr[key],
+        }
+      }, {}));
+    });
   } catch (e) {
     console.log(`[ERROR] Failed to fetch item images for category: ${req.params.categoryId}`, e);
   }
