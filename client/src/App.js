@@ -42,6 +42,8 @@ class App extends Component {
 
             // Can Select
             selectModeEnabled: false,
+            selectedCategories: [],
+            selectedItems: [],
         }
     }
 
@@ -139,6 +141,21 @@ class App extends Component {
         }
     }
 
+    /**
+     * Handles either adding or removing a category from
+     * the list if its been marked as checked or not checked
+     * @param checked
+     * @param categoryId
+     */
+    onCategorySelectChange(checked, categoryId) {
+        const { selectedCategories } = this.state;
+        if(checked) {
+            this.setState((prev) => ({ selectedCategories: [...prev.selectedCategories, categoryId]}))
+        } else {
+            this.setState({ selectedCategories: selectedCategories.filter(id => id !== categoryId)});
+        }
+    }
+
     render() {
         if(this.state.isLoading)
             return <Loader active />;
@@ -171,6 +188,8 @@ class App extends Component {
                                 </Button>
                                 { this.state.categories.map(({ name, sid }, i) =>
                                     <Category
+                                        onCheckChange={(checked, categoryId) => this.onCategorySelectChange(checked, categoryId)}
+                                        id={sid}
                                         selectMode={this.state.selectModeEnabled}
                                         key={i}
                                         items={isUndefined(this.state.items[sid]) ? 0 : this.state.items[sid].length}
@@ -182,7 +201,7 @@ class App extends Component {
                                 <div className="row">
                                     <div className="d-flex justify-content-left">
                                         <Button secondary onClick={() => this.setState((prev) => ({ selectModeEnabled: !prev.selectModeEnabled }))}>
-                                            {this.state.selectModeEnabled ? `0 Selected`  : 'Select' }
+                                            {this.state.selectModeEnabled ? `${this.state.selectedCategories.length} Selected`  : 'Select' }
                                         </Button>
                                         {
                                             this.state.selectModeEnabled &&
@@ -193,7 +212,13 @@ class App extends Component {
                                         }
                                     </div>
                                 </div>
-                                { this.state.items[this.state.activeCategory].length > 0 ? <ItemList selectMode={this.state.selectModeEnabled} category={this.state.activeCategory} images={this.state.images[this.state.activeCategory]} items={this.state.items[this.state.activeCategory]} /> :
+                                { this.state.items[this.state.activeCategory].length > 0 ? <ItemList
+                                        onCheckChange={(checked, name, categoryId) => console.log(checked, name, categoryId)}
+                                        selectMode={this.state.selectModeEnabled}
+                                        category={this.state.activeCategory}
+                                        images={this.state.images[this.state.activeCategory]}
+                                        items={this.state.items[this.state.activeCategory]}
+                                    /> :
                                 <AddItemsMessage onClick={() => this.setState({ addItemOpen: true })} />}
                             </div>
                         </div>

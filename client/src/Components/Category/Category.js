@@ -13,6 +13,7 @@ export default class Category extends Component {
                       <Checkbox
                           value="secondary"
                           color="primary"
+                          onChange={({ target }) => this.props.onCheckChange(target.checked, this.props.id)}
                       />
                   }
                   <div className="category-icon">

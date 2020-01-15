@@ -49,6 +49,7 @@ export default function Item(props) {
                   <Checkbox
                       value="secondary"
                       color="primary"
+                      onChange={({ target }) => props.onCheckChange(target.checked, props.name)}
                   />
                 }
                   {props.name}

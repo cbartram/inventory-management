@@ -16,7 +16,12 @@ export default class ItemList extends Component {
                   this.props.items.map(listItem => {
                       return (
                         <ListItem key={listItem.sid}>
-                         <Item selectMode={this.props.selectMode} image={this.props.images[listItem.name][0]} {...listItem} />
+                            <Item
+                                onCheckChange={(checked, name) => this.props.onCheckChange(checked, name, listItem.pid)}
+                                selectMode={this.props.selectMode}
+                                image={this.props.images[listItem.name][0]}
+                                {...listItem}
+                            />
                         </ListItem>
                       )
                   })
