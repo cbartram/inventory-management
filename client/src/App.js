@@ -39,6 +39,9 @@ class App extends Component {
             },
             // Images for each item
             images: {},
+
+            // Can Select
+            selectModeEnabled: false,
         }
     }
 
@@ -168,6 +171,7 @@ class App extends Component {
                                 </Button>
                                 { this.state.categories.map(({ name, sid }, i) =>
                                     <Category
+                                        selectMode={this.state.selectModeEnabled}
                                         key={i}
                                         items={isUndefined(this.state.items[sid]) ? 0 : this.state.items[sid].length}
                                         onClick={() => this.updateActiveCategory(sid)} active={sid === this.state.activeCategory}>{name}
@@ -175,7 +179,21 @@ class App extends Component {
                                 }
                             </div>
                             <div className="main-content">
-                                { this.state.items[this.state.activeCategory].length > 0 ? <ItemList category={this.state.activeCategory} images={this.state.images[this.state.activeCategory]} items={this.state.items[this.state.activeCategory]} /> :
+                                <div className="row">
+                                    <div className="d-flex justify-content-left">
+                                        <Button secondary onClick={() => this.setState((prev) => ({ selectModeEnabled: !prev.selectModeEnabled }))}>
+                                            {this.state.selectModeEnabled ? `0 Selected`  : 'Select' }
+                                        </Button>
+                                        {
+                                            this.state.selectModeEnabled &&
+                                            <Button secondary className="ml-3 button-danger" onClick={() => this.setState((prev) => ({ selectModeEnabled: !prev.selectModeEnabled }))}>
+                                                <Icon name="trash" style={{ color: '#ea4335' }} />
+                                                Delete
+                                            </Button>
+                                        }
+                                    </div>
+                                </div>
+                                { this.state.items[this.state.activeCategory].length > 0 ? <ItemList selectMode={this.state.selectModeEnabled} category={this.state.activeCategory} images={this.state.images[this.state.activeCategory]} items={this.state.items[this.state.activeCategory]} /> :
                                 <AddItemsMessage onClick={() => this.setState({ addItemOpen: true })} />}
                             </div>
                         </div>

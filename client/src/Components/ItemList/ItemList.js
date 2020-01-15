@@ -7,7 +7,6 @@ import {Loader} from "semantic-ui-react";
 
 export default class ItemList extends Component {
     render() {
-        console.log(this.props.images);
         if(Object.keys(this.props.images).length === 0)
             return <Loader active />;
 
@@ -17,7 +16,7 @@ export default class ItemList extends Component {
                   this.props.items.map(listItem => {
                       return (
                         <ListItem key={listItem.sid}>
-                         <Item image={this.props.images[listItem.name][0]} {...listItem} />
+                         <Item selectMode={this.props.selectMode} image={this.props.images[listItem.name][0]} {...listItem} />
                         </ListItem>
                       )
                   })
