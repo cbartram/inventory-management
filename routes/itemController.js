@@ -74,7 +74,7 @@ router.get('/image/query/:categoryId', async (req, res) => {
           const data = JSON.parse(r);
           const images = data.items
             .map(({ pagemap }) => {
-              if (typeof pagemap.cse_image === 'undefined') return [];
+              if (typeof pagemap === 'undefined' || typeof pagemap.cse_image === 'undefined') return [];
               return pagemap.cse_image.map((i) => i.src);
             }).reduce((prev, curr) => [...prev, ...curr]);
 
@@ -94,7 +94,7 @@ router.get('/image/query/:categoryId', async (req, res) => {
         return {
           ...prev,
           [key]: curr[key],
-        }
+        };
       }, {}));
     });
   } catch (e) {
