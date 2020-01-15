@@ -4,7 +4,6 @@ const router = express.Router();
 
 const categoryController = require('./categoryController');
 const itemController = require('./itemController');
-
 const { version } = require('../package');
 
 router.get('/', (req, res) => {

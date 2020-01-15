@@ -1,6 +1,6 @@
 {
   "name": "inventory-management",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Inventory management backend providing API routes to create read and update inventory",
   "main": "index.js",
   "config": {
@@ -36,6 +36,7 @@
   "homepage": "https://github.com/cbartram/inventory-management#readme",
   "dependencies": {
     "aws-sdk": "^2.597.0",
+    "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
     "chalk": "^3.0.0",
     "cookie-parser": "^1.4.4",
@@ -47,6 +48,7 @@
     "http-errors": "^1.7.3",
     "method-override": "^3.0.0",
     "morgan": "^1.9.1",
+    "redis": "^2.8.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8",
     "semantic-ui-react": "^0.88.2",

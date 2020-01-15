@@ -5,6 +5,8 @@ const router = express.Router();
 const uuid = require('uuid/v4');
 const AWS = require('aws-sdk');
 const request = require('request-promise-native');
+const DynamoDB = require('../src/DynamoDB');
+const cache = require('../src/redis');
 
 /**
  * Creates a new item which is slotted in a specific category
@@ -46,43 +48,48 @@ router.post('/create', async (req, res) => {
 
 /**
  * Uses the google search API to find all images
- * for each item in the category
+ * for each item in the category. Leverages a redis cache to
+ * pull items from the cache before wasting requests on the google API which has a free
+ * limit of 100 requests per day.
  */
-router.get('/image/:categoryId/:query', async (req, res) => {
+router.get('/image/query/:categoryId', async (req, res) => {
   console.log('[INFO] Fetching images for search query: ', req.params.query);
-  const ddb = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
 
-  const params = {
-    TableName: 'inventory',
-    KeyConditionExpression: '#pid = :pid and begins_with(#sid, :sid)',
-    ExpressionAttributeNames: {
-      '#pid': 'pid',
-      '#sid': 'sid',
-    },
-    ExpressionAttributeValues: {
-      ':pid': req.params.categoryId,
-      ':sid': 'item-',
-    },
-  };
   try {
-    NODE_ENV !== 'test' && console.log('[INFO] Attempting to find all items for category: ', req.params.categoryId);
-    const response = await ddb.query(params).promise();
-    NODE_ENV !== 'test' && console.log(`[INFO] Successfully found: ${response.Items.length} items for category Id: ${req.params.categoryId}.`);
-    response.Items.forEach((item) => {
-      console.log('Item: ', item);
+    const { Items } = await new DynamoDB().findAllItems(req.params.categoryId);
+    const promises = [];
+    const cachePromises = [];
+    Items.forEach(({ name }) => {
+      console.log('[INFO] Checking Cache for item: ', name);
+      cachePromises.push(cache.getAsync(name));
     });
 
-    request(`${GOOGLE_SEARCH_URL}${req.params.query}`).then((r) => {
-      const data = JSON.parse(r);
-      const images = data.items
-        .map(({ pagemap }) => pagemap.cse_image.map((i) => i.src))
-        .reduce((prev, curr) => [...prev, ...curr]);
 
-      console.log('Images: ', images);
-      return res.json({ images });
+    const cachedItems = await Promise.all(cachePromises);
+    cachedItems.forEach((item, idx) => {
+      const { name } = Items[idx];
+      if (item == null) {
+        promises.push(request(`${GOOGLE_SEARCH_URL}${name}`).then((r) => {
+          const data = JSON.parse(r);
+          const images = data.items
+            .map(({ pagemap }) => {
+              if (typeof pagemap.cse_image === 'undefined') return [];
+              return pagemap.cse_image.map((i) => i.src);
+            }).reduce((prev, curr) => [...prev, ...curr]);
+
+          console.log(`Setting ${name} in the cache...`);
+          cache.set(name, JSON.stringify({ [name]: images }));
+          return { [name]: images };
+        }));
+      } else {
+        console.log(`[INFO] Found Cached Item: ${name}`);
+        promises.push(new Promise((resolve) => resolve(JSON.parse(item))));
+      }
     });
+
+    await Promise.all(promises).then((d) => res.json(d));
   } catch (e) {
-    console.log('[ERROR] Failed to fetch items from category for getting images for each item', e);
+    console.log(`[ERROR] Failed to fetch item images for category: ${req.params.categoryId}`, e);
   }
 });
 
@@ -90,30 +97,14 @@ router.get('/image/:categoryId/:query', async (req, res) => {
  * Finds all items within a given category
  */
 router.get('/:categoryId', async (req, res) => {
-  const ddb = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
-
   if (!req.params.categoryId) {
     console.log('[ERROR] Category Id is missing from the request parameters: Category Id = ', req.params.categoryId);
     res.json({ error: true, message: `Category Id is missing from the request parameters: Category Id = ${req.params.categoryId}` });
   }
 
-  const params = {
-    TableName: 'inventory',
-    KeyConditionExpression: '#pid = :pid and begins_with(#sid, :sid)',
-    ExpressionAttributeNames: {
-      '#pid': 'pid',
-      '#sid': 'sid',
-    },
-    ExpressionAttributeValues: {
-      ':pid': req.params.categoryId,
-      ':sid': 'item-',
-    },
-  };
   try {
-    NODE_ENV !== 'test' && console.log('[INFO] Attempting to find all items for category: ', req.params.categoryId);
-    const response = await ddb.query(params).promise();
-    NODE_ENV !== 'test' && console.log(`[INFO] Successfully found: ${response.Items.length} items for category Id: ${req.params.categoryId}.`);
-    res.json(response.Items);
+    const { Items } = await new DynamoDB().findAllItems(req.params.categoryId);
+    res.json(Items);
   } catch (err) {
     NODE_ENV !== 'test' && console.log('[ERROR] GET -- /api/v1/items/ There was an error attempting to retrieve all items for given category: ', req.body, err);
     res.status(500);
