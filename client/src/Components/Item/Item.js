@@ -6,6 +6,8 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
+import AddRoundedIcon from '@material-ui/icons/AddRounded';
+import RemoveRoundedIcon from '@material-ui/icons/RemoveRounded';
 import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import SkipNextIcon from '@material-ui/icons/SkipNext';
@@ -53,13 +55,10 @@ export default function Item(props) {
               </CardContent>
               <div className={classes.controls}>
                 <IconButton aria-label="previous">
-                  {theme.direction === 'rtl' ? <SkipNextIcon /> : <SkipPreviousIcon />}
-                </IconButton>
-                <IconButton aria-label="play/pause">
-                  <PlayArrowIcon className={classes.playIcon} />
+                  <RemoveRoundedIcon className={classes.playIcon} />
                 </IconButton>
                 <IconButton aria-label="next">
-                  {theme.direction === 'rtl' ? <SkipPreviousIcon /> : <SkipNextIcon />}
+                  <AddRoundedIcon className={classes.playIcon} />
                 </IconButton>
               </div>
             </div>
