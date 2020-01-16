@@ -26,7 +26,7 @@
   width: calc(100% - 300px);
 }
 
-button.ui.secondary.button {
+button.ui.secondary.button, button.ui.button {
   color: #1a73e8;
   border-color: #dadce0 !important;
   border: 1px solid;
@@ -41,12 +41,12 @@ button.ui.secondary.button {
   border-radius: 4px;
 }
 
-button.ui.secondary.button:hover {
+button.ui.secondary.button:hover, button.ui.button:hover {
   color: #174ea6;
   background-color: rgb(247, 250, 254);
 }
 
-button.ui.secondary.button:focus, button.ui.secondary.button:active {
+button.ui.secondary.button:focus, button.ui.secondary.button:active, button.ui.button:active {
   color: #174ea6;
   background-color: rgb(231, 239, 251);
   border-color: #174ea6;

@@ -18,7 +18,7 @@ code {
 }
 
 
-.ui.primary.button {
+button.ui.primary.button.rounded-btn {
   color: #1a73e8 !important;
   border: 1px solid #dfe1e5 !important;
   border-radius: 25px;
@@ -39,12 +39,12 @@ code {
   min-width: 64px;
 }
 
-.ui.primary.button:hover {
+button.ui.primary.button.rounded-btn:hover {
   border-color: #dadce0 !important;
   background: rgb(247, 250, 254) !important;
 }
 
-.ui.primary.button:focus {
+button.ui.primary.button.rounded-btn:focus {
   color: #174ea6 !important;
   border-color: #174ea6 !important;
   background: rgb(231, 239, 251) !important;
@@ -66,7 +66,7 @@ code {
   text-decoration: none;
 }
 
-.btn-primary {
+.btn-primary, button.ui.primary.button {
   color: white;
   background-color: rgb(41, 98, 255);
   outline: none;
@@ -74,4 +74,8 @@ code {
   font-weight: 500;
   text-transform: initial;
   letter-spacing:0.15px;
+}
+
+.btn-primary:hover, button.ui.primary.button:hover {
+  background-color: rgb(56, 99, 255);
 }

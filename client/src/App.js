@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import Navbar from "./Components/Navbar/Navbar.js";
-import {Button, Icon, Loader} from 'semantic-ui-react';
+import {Button, Icon, Confirm, Loader} from 'semantic-ui-react';
 import isUndefined from 'lodash/isUndefined';
 import {
     getRequestUrl,
@@ -44,6 +44,9 @@ class App extends Component {
             selectModeEnabled: false,
             selectedCategories: [],
             selectedItems: [],
+
+            // Misc
+            deleteConfirmOpen: false,
         }
     }
 
@@ -156,6 +159,21 @@ class App extends Component {
         }
     }
 
+    onItemSelectChange(checked, item, categoryId) {
+        const { selectedItems } = this.state;
+    }
+
+
+    /**
+     * Handles making the delete request to remove both categories
+     * and items from the Database
+     */
+    deleteRecords() {
+        const { selectedCategories, selectedItems } = this.state;
+        console.log('Selected categories: ', selectedCategories);
+        console.log('Selected Items: ', selectedItems);
+    }
+
     render() {
         if(this.state.isLoading)
             return <Loader active />;
@@ -178,11 +196,18 @@ class App extends Component {
                     quantity={this.state.item.quantity}
                     error={this.state.addItemError}
                 />
+                <Confirm
+                    open={this.state.deleteConfirmOpen}
+                    header="Are you sure?"
+                    content={`Are you sure you want to delete ${this.state.selectedCategories.length} categories and ${this.state.selectedItems.length} items? Once you do this it cannot be un-done.`}
+                    onCancel={() => this.setState({ deleteConfirmOpen: false })}
+                    onConfirm={() => this.deleteRecords()}
+                />
                 <div className="container-fluid">
                     <div className="container-margin">
                         <div className="inner-container">
                             <div className="collection-container">
-                                <Button primary onClick={() => this.setState({ open: true })}>
+                                <Button primary className="rounded-btn" onClick={() => this.setState({ open: true })}>
                                     <Icon name="plus"/>
                                     New Category
                                 </Button>
@@ -201,19 +226,20 @@ class App extends Component {
                                 <div className="row">
                                     <div className="d-flex justify-content-left">
                                         <Button secondary onClick={() => this.setState((prev) => ({ selectModeEnabled: !prev.selectModeEnabled }))}>
-                                            {this.state.selectModeEnabled ? `${this.state.selectedCategories.length} Selected`  : 'Select' }
+                                            {this.state.selectModeEnabled ? `${this.state.selectedCategories.length + this.state.selectedItems.length} Selected`  : 'Select' }
                                         </Button>
                                         {
                                             this.state.selectModeEnabled &&
-                                            <Button secondary className="ml-3 button-danger" onClick={() => this.setState((prev) => ({ selectModeEnabled: !prev.selectModeEnabled }))}>
+                                            <Button secondary className="ml-3 button-danger" onClick={() => this.setState({ deleteConfirmOpen: true })}>
                                                 <Icon name="trash" style={{ color: '#ea4335' }} />
                                                 Delete
                                             </Button>
                                         }
+                                        <Button secondary className="ml-3" onClick={() => this.setState({ addItemOpen: true })}>Add Items</Button>
                                     </div>
                                 </div>
                                 { this.state.items[this.state.activeCategory].length > 0 ? <ItemList
-                                        onCheckChange={(checked, name, categoryId) => console.log(checked, name, categoryId)}
+                                        onCheckChange={(checked, name, categoryId) => this.onItemSelectChange(checked, name, categoryId)}
                                         selectMode={this.state.selectModeEnabled}
                                         category={this.state.activeCategory}
                                         images={this.state.images[this.state.activeCategory]}
