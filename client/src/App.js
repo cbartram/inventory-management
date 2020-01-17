@@ -7,7 +7,10 @@ import {
     getRequestUrl,
     GET_ALL_CATEGORIES,
     CREATE_CATEGORY,
-    CREATE_ITEM, GET_ITEMS, GET_IMAGES
+    CREATE_ITEM,
+    GET_ITEMS,
+    GET_IMAGES,
+    DELETE_ALL,
 } from "./constants";
 import Category from "./Components/Category/Category";
 import CreateCategoryModal from "./Components/CreateCategoryModal/CreateCategoryModal";
@@ -148,19 +151,29 @@ class App extends Component {
      * Handles either adding or removing a category from
      * the list if its been marked as checked or not checked
      * @param checked
-     * @param categoryId
+     * @param newCategory Object Contains properties for pid and sid in DynamoDB for this dataset
      */
-    onCategorySelectChange(checked, categoryId) {
+    onCategorySelectChange(checked, newCategory) {
         const { selectedCategories } = this.state;
         if(checked) {
-            this.setState((prev) => ({ selectedCategories: [...prev.selectedCategories, categoryId]}))
+            this.setState({ selectedCategories: [...selectedCategories, newCategory]});
         } else {
-            this.setState({ selectedCategories: selectedCategories.filter(id => id !== categoryId)});
+            this.setState({ selectedCategories: selectedCategories.filter(({ sid }) => sid !== newCategory.sid )});
         }
     }
 
-    onItemSelectChange(checked, item, categoryId) {
+    /**
+     * Handles updating local state when new items are selected and de-selected
+     * @param checked
+     * @param itemKey Object which has the pid and sid properties of the item in DynamoDB
+     */
+    onItemSelectChange(checked, itemKey) {
         const { selectedItems } = this.state;
+        if(checked) {
+            this.setState({ selectedItems: [ ...selectedItems, itemKey]});
+        } else {
+            this.setState({ selectedItems: selectedItems.filter(({ sid }) => sid !== itemKey.sid )})
+        }
     }
 
 
@@ -168,10 +181,22 @@ class App extends Component {
      * Handles making the delete request to remove both categories
      * and items from the Database
      */
-    deleteRecords() {
+    async deleteRecords() {
         const { selectedCategories, selectedItems } = this.state;
         console.log('Selected categories: ', selectedCategories);
         console.log('Selected Items: ', selectedItems);
+
+        const response = await (await fetch(getRequestUrl(DELETE_ALL), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-HTTP-Method-Override': 'DELETE'
+            },
+            body: JSON.stringify({ items: selectedItems, categories: selectedCategories })
+        })).json();
+
+        console.log('Delete response: {}', response);
     }
 
     render() {
@@ -199,6 +224,7 @@ class App extends Component {
                 <Confirm
                     open={this.state.deleteConfirmOpen}
                     header="Are you sure?"
+                    confirmButton="Delete"
                     content={`Are you sure you want to delete ${this.state.selectedCategories.length} categories and ${this.state.selectedItems.length} items? Once you do this it cannot be un-done.`}
                     onCancel={() => this.setState({ deleteConfirmOpen: false })}
                     onConfirm={() => this.deleteRecords()}
@@ -213,7 +239,7 @@ class App extends Component {
                                 </Button>
                                 { this.state.categories.map(({ name, sid }, i) =>
                                     <Category
-                                        onCheckChange={(checked, categoryId) => this.onCategorySelectChange(checked, categoryId)}
+                                        onCheckChange={checked => this.onCategorySelectChange(checked, { pid: 'category', sid })}
                                         id={sid}
                                         selectMode={this.state.selectModeEnabled}
                                         key={i}
@@ -239,7 +265,7 @@ class App extends Component {
                                     </div>
                                 </div>
                                 { this.state.items[this.state.activeCategory].length > 0 ? <ItemList
-                                        onCheckChange={(checked, name, categoryId) => this.onItemSelectChange(checked, name, categoryId)}
+                                        onCheckChange={(checked, itemKey) => this.onItemSelectChange(checked, itemKey)}
                                         selectMode={this.state.selectModeEnabled}
                                         category={this.state.activeCategory}
                                         images={this.state.images[this.state.activeCategory]}

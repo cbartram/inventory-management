@@ -8,10 +8,10 @@ class DynamoDB {
   }
 
   /**
-     * Finds all items that belong to a particular category
-     * @param categoryId String category id to search for items under
-     * @returns {Promise<ItemList>}
-     */
+   * Finds all items that belong to a particular category
+   * @param categoryId String category id to search for items under
+   * @returns {Promise<ItemList>}
+   */
   async findAllItems(categoryId) {
     if (!categoryId) {
       console.log('[ERROR] Category Id is missing from the request parameters: Category Id = ', categoryId);
@@ -41,12 +41,46 @@ class DynamoDB {
     }
   }
 
+  /**
+   * Deletes items in DynamoDB in bulk
+   * @param keys Array of strings
+   * @returns {Promise<void>}
+   */
+  async bulkDelete(keys) {
+    const params = {
+      RequestItems: {
+        [DYNAMODB_TABLE_NAME]: [],
+      },
+    };
+
+    keys.forEach((key) => params.RequestItems[DYNAMODB_TABLE_NAME].push({
+      DeleteRequest: {
+        Key: {
+          pid: key.pid,
+          sid: key.sid,
+        },
+      },
+    }));
+
+    NODE_ENV !== 'test' && console.log('[INFO] DynamoDB Bulk Delete params: ', params);
+
+    try {
+      NODE_ENV !== 'test' && console.log('[INFO] Attempting to delete all items: ', keys);
+      const response = await this.client.batchWrite(params).promise();
+      NODE_ENV !== 'test' && console.log(`[INFO] Successfully deleted: ${keys.length} items.`);
+      return response;
+    } catch (e) {
+      NODE_ENV !== 'test' && console.log('[ERROR] There was an error attempting to delete the specified items: ', keys, e);
+      throw new Error(`There was an error attempting to delete the specified items: ${keys}`);
+    }
+  }
+
 
   /**
-     * Returns the underlying DynamoDB document client
-     * used to make DDB calls to the table
-     * @returns {DocumentClient}
-     */
+   * Returns the underlying DynamoDB document client
+   * used to make DDB calls to the table
+   * @returns {DocumentClient}
+   */
   getClient() {
     return this.client;
   }
