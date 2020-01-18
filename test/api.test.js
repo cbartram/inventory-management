@@ -78,6 +78,43 @@ describe('API Tests', () => {
         });
     });
 
+    describe('API Delete Tests', () => {
+       afterEach(() => AWS.restore('DynamoDB.DocumentClient'));
+
+       it('Successfully delete categories and items', (done) => {
+           AWS.mock('DynamoDB.DocumentClient', 'batchWrite', (params, callback) => {
+               callback(null, { UnprocessedItems: {} });
+           });
+
+           chai.request(server)
+               .delete('/api/v1/delete/all')
+               .send({ items: [], categories: [{ pid: 'foo', sid: 'bar' }]})
+               .end((err, res) => {
+                   res.body.should.be.a('object');
+                   res.body.success.should.equal(true);
+                   res.should.have.status(200);
+                   done();
+               });
+       });
+
+        it('Responds with an error when there are no items to delete', (done) => {
+            // AWS.mock('DynamoDB.DocumentClient', 'batchWrite', (params, callback) => {
+            //     callback(null, { UnprocessedItems: {} });
+            // });
+
+            chai.request(server)
+                .delete('/api/v1/delete/all')
+                .send({ items: [], categories: []})
+                .end((err, res) => {
+                    res.body.should.be.a('object');
+                    res.body.numDeleted.should.equal(0);
+                    res.body.message.should.equal('Nothing to delete');
+                    res.should.have.status(200);
+                    done();
+                });
+        });
+    });
+
     describe('Category Tests', () => {
         afterEach(() => AWS.restore('DynamoDB.DocumentClient'));
 

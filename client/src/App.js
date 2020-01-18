@@ -196,7 +196,13 @@ class App extends Component {
             body: JSON.stringify({ items: selectedItems, categories: selectedCategories })
         })).json();
 
-        console.log('Delete response: {}', response);
+        if(response.success) {
+            // TODO Show success dialogue
+            this.setState({ deleteConfirmOpen: false });
+        } else {
+            console.log('[ERROR] Failed to delete: ', response);
+            // TODO Show error dialogue
+        }
     }
 
     render() {

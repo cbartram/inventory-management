@@ -16,10 +16,16 @@ router.get('/', (req, res) => {
 });
 
 // Delete route is here because it handles both deleting categories and items
+/**
+ * Handles deleting both categories and items from DynamoDB
+ */
 router.delete('/delete/all', async (req, res) => {
   const { items, categories } = req.body;
   NODE_ENV !== 'test' && console.log('[INFO] Attempting to delete: ', items, categories);
-  if (items.length === 0 && categories.length === 0) res.json({ numDeleted: 0, message: 'Nothing to delete' });
+  if (items.length === 0 && categories.length === 0) {
+    res.json({ numDeleted: 0, message: 'Nothing to delete' });
+    return;
+  }
   const ddb = new DynamoDB();
 
   if(items.length !== 0) {
@@ -32,7 +38,7 @@ router.delete('/delete/all', async (req, res) => {
     NODE_ENV !== 'test' && console.log('[INFO] Delete Categories(s) Response: {}', categoriesResponse);
   }
 
-  res.json({ success: true });
+  res.json({ success: true, numDeleted: items.length + categories.length });
 });
 
 router.use('/category', categoryController);

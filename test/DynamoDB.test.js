@@ -50,4 +50,25 @@ describe('DynamoDB Tests', () => {
         expect(items).to.be.a('object');
         expect(Object.keys(items).length).to.be.a('number').that.equals(0);
     });
+
+    it('Deletes an item/category successfully', async () => {
+        AWS.mock('DynamoDB.DocumentClient', 'batchWrite', (params, callback) => {
+            callback(null,{ UnprocessedItems: {} });
+        });
+        const items = await new DynamoDB().bulkDelete([{ pid: 'foo', sid: 'bar' }]);
+        expect(items).to.be.a('object');
+        expect(items.UnprocessedItems).to.be.a('object');
+    });
+
+    it('Catches an error when something fails with DynamoDB and the network while deleting items', async () => {
+        AWS.mock('DynamoDB.DocumentClient', 'batchWrite', (params, callback) => {
+            callback('There was an error attempting to delete the specified items:', null);
+        });
+
+        try {
+            await new DynamoDB().bulkDelete([]);
+        } catch(err) {
+            expect(err.message).to.be.a('string').that.equals('There was an error attempting to delete the specified items: ');
+        }
+    });
 });
