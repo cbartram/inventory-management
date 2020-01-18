@@ -64,23 +64,13 @@ const clients = [];
 
 io.on("connection", socket => {
   console.log('[INFO] Client Connected: ', socket.id);
-  clients.push(socket.id);
+  clients.push(socket);
 
-  socket.on('event', (data) => {
-    switch(data.type) {
-      case 'CATEGORY_DELETE':
-        console.log('Category Deleted');
-        break;
-      case 'CATEGORY_CREATE':
-        console.log('Category Created');
-        break;
-      case 'ITEM_DELETE':
-        console.log('[INFO] Item deleted');
-        break;
-      case 'ITEM_CREATE':
-        console.log('[INFO] Item created');
-        break;
-    }
+  socket.on('event', (event) => {
+    const otherClients = clients.filter(({ id }) => id !== event.id);
+    otherClients.forEach(client => {
+      client.emit('event', event);
+    });
   });
 
   socket.on("disconnect", () => {

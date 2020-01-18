@@ -61,6 +61,24 @@ class App extends Component {
         const items = await (await fetch(getRequestUrl(`${GET_ITEMS}/${categories[0].sid}`))).json();
         const images = await (await fetch(getRequestUrl(GET_IMAGES) + categories[0].sid)).json();
         const socket = socketIOClient(getSocketUrl());
+
+        socket.on('event', event => {
+            switch(event.type) {
+                case 'CATEGORY_DELETE':
+                    console.log('Category Deleted');
+                    break;
+                case 'CATEGORY_CREATE':
+                    this.setState({ categories: [...this.state.categories, event.data] });
+                    break;
+                case 'ITEM_DELETE':
+                    console.log('[INFO] Item deleted');
+                    break;
+                case 'ITEM_CREATE':
+                    console.log('[INFO] Item created');
+                    break;
+            }
+        });
+
         if(categories.length > 0) this.setState({ socket, categories, activeCategory: categories[0].sid, items: { [categories[0].sid]: items }, images: { [categories[0].sid]: images }, isLoading: false });
     }
 
@@ -71,7 +89,7 @@ class App extends Component {
      * @returns {Promise<void>}
      */
     async createCategory(cancel) {
-        const { newCategory, categories } = this.state;
+        const { newCategory, categories, socket } = this.state;
 
         // The cancel button was clicked no need to check for valid input
         if(cancel === 'cancel') {
@@ -92,6 +110,9 @@ class App extends Component {
                 body: JSON.stringify({ name: newCategory })
 
             })).json();
+
+            socket.emit('event', { type: 'CATEGORY_CREATE', id: socket.id, data: response });
+
             this.setState({open: false, newCategory: '', categories: [...categories, response] });
         }
     }
