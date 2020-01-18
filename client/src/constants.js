@@ -17,6 +17,10 @@ export const getRequestUrl = (endpointURI) => {
     return url;
 };
 
+export const getSocketUrl = () => {
+   return IS_PROD ? PROD_URL : DEV_URL;
+};
+
 /**
  * Helper variable to determine if the App is in the production environment. This decides which API call to make.
  * @type {boolean} True if the application is running in prod and false otherwise.

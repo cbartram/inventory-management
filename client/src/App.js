@@ -10,13 +10,15 @@ import {
     CREATE_ITEM,
     GET_ITEMS,
     GET_IMAGES,
-    DELETE_ALL,
+    DELETE_ALL, getSocketUrl,
 } from "./constants";
 import Category from "./Components/Category/Category";
 import CreateCategoryModal from "./Components/CreateCategoryModal/CreateCategoryModal";
 import AddItemsMessage from "./Components/AddItemsMessage/AddItemsMessage";
 import AddItemModal from "./Components/AddItemModal/AddItemModal";
 import ItemList from "./Components/ItemList/ItemList";
+import socketIOClient from "socket.io-client";
+
 
 class App extends Component {
     constructor(props) {
@@ -50,6 +52,7 @@ class App extends Component {
 
             // Misc
             deleteConfirmOpen: false,
+            socket: null,
         }
     }
 
@@ -57,8 +60,8 @@ class App extends Component {
         const categories = await(await fetch(getRequestUrl(GET_ALL_CATEGORIES))).json();
         const items = await (await fetch(getRequestUrl(`${GET_ITEMS}/${categories[0].sid}`))).json();
         const images = await (await fetch(getRequestUrl(GET_IMAGES) + categories[0].sid)).json();
-
-        if(categories.length > 0) this.setState({ categories, activeCategory: categories[0].sid, items: { [categories[0].sid]: items }, images: { [categories[0].sid]: images }, isLoading: false });
+        const socket = socketIOClient(getSocketUrl());
+        if(categories.length > 0) this.setState({ socket, categories, activeCategory: categories[0].sid, items: { [categories[0].sid]: items }, images: { [categories[0].sid]: images }, isLoading: false });
     }
 
     /**

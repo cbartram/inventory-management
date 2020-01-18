@@ -11,13 +11,13 @@ const body = require('body-parser');
 const methodOverride = require('method-override');
 const cors = require('cors');
 const AWS = require('aws-sdk');
-// const session = require('express-session');
+const app = express();
 
 const { version } = require('./package');
 
 const port = process.env.PORT || 3010;
 
-const app = express();
+
 
 app.set('view engine', 'ejs');
 
@@ -49,7 +49,7 @@ app.use((err, req, res) => {
   res.render('error');
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   process.env.NODE_ENV !== 'test' && figlet('Spring', (err, data) => {
     console.log(chalk.green(data));
     console.log(chalk.green(`Version ${version}`));
@@ -59,4 +59,37 @@ app.listen(port, () => {
   });
 });
 
-module.exports = app;
+const io = require('socket.io')(server);
+const clients = [];
+
+io.on("connection", socket => {
+  console.log('[INFO] Client Connected: ', socket.id);
+  clients.push(socket.id);
+
+  socket.on('event', (data) => {
+    switch(data.type) {
+      case 'CATEGORY_DELETE':
+        console.log('Category Deleted');
+        break;
+      case 'CATEGORY_CREATE':
+        console.log('Category Created');
+        break;
+      case 'ITEM_DELETE':
+        console.log('[INFO] Item deleted');
+        break;
+      case 'ITEM_CREATE':
+        console.log('[INFO] Item created');
+        break;
+    }
+  });
+
+  socket.on("disconnect", () => {
+    clients.filter(id => id !== socket.id);
+    console.log("[INFO] Client disconnected: ", socket.id);
+  });
+});
+
+module.exports = {
+  app,
+  server,
+};
