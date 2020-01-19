@@ -202,13 +202,23 @@ class App extends Component {
      * @returns {Promise<void>}
      */
     async updateActiveCategory(sid) {
-        const { images } = this.state;
+        const { images, items } = this.state;
 
-        if(isUndefined(images[sid])) {
+        if(isUndefined(items[sid])) {
             // TODO get images queries for all items under the hood and returns images for items might as well just return the items as well
             const newImages = await (await fetch(getRequestUrl(GET_IMAGES) + sid)).json();
 
-            this.setState({ activeCategory: sid, images: { ...images, [sid]: newImages } })
+            this.setState({
+                activeCategory: sid,
+                images: {
+                    ...images,
+                    [sid]: newImages
+                },
+                items: {
+                    ...items,
+                    [sid]: [],
+                }
+            });
         } else {
             this.setState({ activeCategory: sid });
         }
