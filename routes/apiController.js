@@ -34,6 +34,8 @@ router.delete('/delete/all', async (req, res) => {
   }
 
   if(categories.length !== 0) {
+    // TODO Get all the items of each category and delete them all as well. When a category is deleted so are its items
+
     const categoriesResponse = await ddb.bulkDelete(categories);
     NODE_ENV !== 'test' && console.log('[INFO] Delete Categories(s) Response: {}', categoriesResponse);
   }

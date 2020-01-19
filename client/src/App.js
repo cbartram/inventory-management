@@ -75,6 +75,9 @@ class App extends Component {
                     break;
                 case 'ITEM_CREATE':
                     console.log('[INFO] Item created');
+                    console.log('Event data: ', event);
+                    console.log(this.state.items[event.data.pid]);
+                    this.setState({ items: {...this.state.items, [event.data.pid]: [ ...this.state.items[event.data.pid], { pid: event.data.pid, sid: event.data.sid, name: event.data.name, quantity: event.name.quantity } ] } });
                     break;
             }
         });
@@ -112,7 +115,6 @@ class App extends Component {
             })).json();
 
             socket.emit('event', { type: 'CATEGORY_CREATE', id: socket.id, data: response });
-
             this.setState({open: false, newCategory: '', categories: [...categories, response] });
         }
     }
@@ -124,7 +126,7 @@ class App extends Component {
      * @returns {Promise<void>}
      */
     async handleAddItem(cancel) {
-        const { item, activeCategory } = this.state;
+        const { item, activeCategory, socket } = this.state;
 
         // The cancel button was clicked no need to check for valid input
         if(cancel === 'cancel') {
@@ -148,6 +150,7 @@ class App extends Component {
 
         })).json();
         console.log("[INFO] Successfully created new item: ", response);
+        socket.emit('event', { type: 'ITEM_CREATE', id: socket.id, data: response });
         this.setState({ addItemOpen: false, item: { quantity: 1, name: '' } })
     }
 
@@ -199,7 +202,6 @@ class App extends Component {
             this.setState({ selectedItems: selectedItems.filter(({ sid }) => sid !== itemKey.sid )})
         }
     }
-
 
     /**
      * Handles making the delete request to remove both categories
@@ -301,7 +303,7 @@ class App extends Component {
                                         images={this.state.images[this.state.activeCategory]}
                                         items={this.state.items[this.state.activeCategory]}
                                     /> :
-                                <AddItemsMessage onClick={() => this.setState({ addItemOpen: true })} />}
+                                    <AddItemsMessage onClick={() => this.setState({ addItemOpen: true })} />}
                             </div>
                         </div>
                     </div>
