@@ -5,8 +5,23 @@ const router = express.Router();
 const uuid = require('uuid/v4');
 const AWS = require('aws-sdk');
 const request = require('request-promise-native');
+const _ = require('lodash');
 const DynamoDB = require('../src/DynamoDB');
 const cache = require('../src/redis');
+
+
+/**
+ * Finds all items for all categories in a single
+ * API call
+ */
+router.get('/all', async (req, res) => {
+    try {
+      const { Items } = await new DynamoDB().findAllItems();
+      res.json(_.groupBy(Items, 'pid'));
+    } catch(e) {
+      console.log('[ERROR] Failed to retrieve all items from DynamoDB: ', e.message);
+    }
+});
 
 /**
  * Creates a new item which is slotted in a specific category
@@ -56,7 +71,7 @@ router.get('/image/query/:categoryId', async (req, res) => {
   console.log('[INFO] Fetching images for search query: ', req.params.query);
 
   try {
-    const { Items } = await new DynamoDB().findAllItems(req.params.categoryId);
+    const { Items } = await new DynamoDB().findAllItemsByCategory(req.params.categoryId);
     const promises = [];
     const cachePromises = [];
     Items.forEach(({ name }) => {
@@ -102,6 +117,7 @@ router.get('/image/query/:categoryId', async (req, res) => {
   }
 });
 
+
 /**
  * Finds all items within a given category
  */
@@ -112,7 +128,7 @@ router.get('/:categoryId', async (req, res) => {
   }
 
   try {
-    const { Items } = await new DynamoDB().findAllItems(req.params.categoryId);
+    const { Items } = await new DynamoDB().findAllItemsByCategory(req.params.categoryId);
     res.json(Items);
   } catch (err) {
     NODE_ENV !== 'test' && console.log('[ERROR] GET -- /api/v1/items/ There was an error attempting to retrieve all items for given category: ', req.body, err);

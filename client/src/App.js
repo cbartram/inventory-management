@@ -3,7 +3,7 @@ import './App.css';
 import Navbar from "./Components/Navbar/Navbar.js";
 import {Button, Icon, Confirm, Loader} from 'semantic-ui-react';
 import isUndefined from 'lodash/isUndefined';
-import differenceWith from 'lodash/differenceWith';
+import differenceBy from 'lodash/differenceBy';
 import {
     getRequestUrl,
     GET_ALL_CATEGORIES,
@@ -11,7 +11,7 @@ import {
     CREATE_ITEM,
     GET_ITEMS,
     GET_IMAGES,
-    DELETE_ALL, getSocketUrl,
+    DELETE_ALL, getSocketUrl, GET_ALL_ITEMS,
 } from "./constants";
 import Category from "./Components/Category/Category";
 import CreateCategoryModal from "./Components/CreateCategoryModal/CreateCategoryModal";
@@ -58,8 +58,10 @@ class App extends Component {
     }
 
     async componentDidMount() {
+        // TODO Very important load all categories and all items into state on page load don't lazy load
+        // TODO it affects other pages when categories/items are added/deleted but not loaded into the other pages state
         const categories = await(await fetch(getRequestUrl(GET_ALL_CATEGORIES))).json();
-        const items = await (await fetch(getRequestUrl(`${GET_ITEMS}/${categories[0].sid}`))).json();
+        const items = await (await fetch(getRequestUrl(GET_ALL_ITEMS))).json();
         const images = await (await fetch(getRequestUrl(GET_IMAGES) + categories[0].sid)).json();
         const socket = socketIOClient(getSocketUrl());
 
@@ -68,6 +70,9 @@ class App extends Component {
                 case 'CATEGORY_DELETE':
                     console.log('Category Deleted');
                     console.log('[INFO] Event: ', event);
+                    this.setState({
+                        categories: differenceBy(categories, event.data, 'sid'),
+                    });
                     break;
                 case 'CATEGORY_CREATE':
                     this.setState({ categories: [...this.state.categories, event.data] });
@@ -100,7 +105,14 @@ class App extends Component {
             }
         });
 
-        if(categories.length > 0) this.setState({ socket, categories, activeCategory: categories[0].sid, items: { [categories[0].sid]: items }, images: { [categories[0].sid]: images }, isLoading: false });
+        if(categories.length > 0) this.setState({
+            socket,
+            categories,
+            activeCategory: categories[0].sid,
+            items,
+            images: { [categories[0].sid]: images },
+            isLoading: false
+        });
     }
 
     /**
@@ -190,14 +202,13 @@ class App extends Component {
      * @returns {Promise<void>}
      */
     async updateActiveCategory(sid) {
-        const { items, images } = this.state;
+        const { images } = this.state;
 
-        if(isUndefined(items[sid])) {
+        if(isUndefined(images[sid])) {
             // TODO get images queries for all items under the hood and returns images for items might as well just return the items as well
-            const response = await (await fetch(getRequestUrl(`${GET_ITEMS}/${sid}`))).json();
             const newImages = await (await fetch(getRequestUrl(GET_IMAGES) + sid)).json();
 
-            this.setState({ activeCategory: sid, items: { ...items, [sid]: response }, images: { ...images, [sid]: newImages } })
+            this.setState({ activeCategory: sid, images: { ...images, [sid]: newImages } })
         } else {
             this.setState({ activeCategory: sid });
         }
@@ -237,7 +248,15 @@ class App extends Component {
      * and items from the Database
      */
     async deleteRecords() {
-        const { selectedCategories, selectedItems, items, socket } = this.state;
+        const {
+            selectedCategories,
+            selectedItems,
+            items,
+            socket
+        } = this.state;
+        let {
+            categories
+        } = this.state;
         console.log('Selected categories: ', selectedCategories);
         console.log('Selected Items: ', selectedItems);
 
@@ -268,6 +287,12 @@ class App extends Component {
             }
             if(selectedCategories.length > 0) {
                 socket.emit('event', {type: 'CATEGORY_DELETE', id: socket.id, data: selectedCategories});
+                this.setState({
+                    categories: differenceBy(categories, selectedCategories, 'sid'),
+                    deleteConfirmOpen: false,
+                    selectedCategories: [],
+                    selectModeEnabled: false,
+                });
             }
         } else {
             console.log('[ERROR] Failed to delete: ', response);

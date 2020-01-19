@@ -8,11 +8,37 @@ class DynamoDB {
   }
 
   /**
+   * Finds all items within the database regardless of category
+   * @returns {Promise<DocumentClient.QueryOutput & {$response: Response<DocumentClient.QueryOutput, AWSError>}>}
+   */
+  async findAllItems() {
+    const params = {
+      TableName: DYNAMODB_TABLE_NAME,
+      FilterExpression: 'begins_with(#sid, :item)',
+      ExpressionAttributeNames: {
+        '#sid': 'sid'
+      },
+      ExpressionAttributeValues: {
+        ':item': 'item-',
+      }
+    };
+    try {
+      NODE_ENV !== 'test' && console.log('[INFO] Attempting to find all items...');
+      const response = await this.client.scan(params).promise();
+      NODE_ENV !== 'test' && console.log(`[INFO] Successfully found: ${response.Items.length} items.`);
+      return response;
+    } catch (err) {
+      NODE_ENV !== 'test' && console.log('[ERROR] There was an error attempting to retrieve all items: ', err);
+      throw new Error(`There was an error attempting to retrieve all items.`);
+    }
+  }
+
+  /**
    * Finds all items that belong to a particular category
    * @param categoryId String category id to search for items under
    * @returns {Promise<ItemList>}
    */
-  async findAllItems(categoryId) {
+  async findAllItemsByCategory(categoryId) {
     if (!categoryId) {
       console.log('[ERROR] Category Id is missing from the request parameters: Category Id = ', categoryId);
       throw new Error(`Category Id is missing from the request parameters: Category Id = ${categoryId}`);
