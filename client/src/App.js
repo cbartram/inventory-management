@@ -3,6 +3,7 @@ import './App.css';
 import Navbar from "./Components/Navbar/Navbar.js";
 import {Button, Icon, Confirm, Loader} from 'semantic-ui-react';
 import isUndefined from 'lodash/isUndefined';
+import differenceWith from 'lodash/differenceWith';
 import {
     getRequestUrl,
     GET_ALL_CATEGORIES,
@@ -66,16 +67,26 @@ class App extends Component {
             switch(event.type) {
                 case 'CATEGORY_DELETE':
                     console.log('Category Deleted');
+                    console.log('[INFO] Event: ', event);
                     break;
                 case 'CATEGORY_CREATE':
                     this.setState({ categories: [...this.state.categories, event.data] });
                     break;
                 case 'ITEM_DELETE':
                     console.log('[INFO] Item deleted');
+                    console.log('[INFO] Event: ', event);
+                    const { items } = this.state;
+                    event.data.forEach(deletedItem => {
+                        items[deletedItem.pid] = items[deletedItem.pid].filter(item => item.sid !== deletedItem.sid);
+                    });
+
+                    this.setState({ items });
                     break;
                 case 'ITEM_CREATE':
                     console.log('[INFO] Item created');
                     console.log('Event: ', event);
+                    console.log('[INFO] Items: ', this.state.items);
+                    console.log('Iterable? :', this.state.items[event.data.pid]);
                     this.setState({
                         items: {
                             ...this.state.items,
@@ -226,7 +237,7 @@ class App extends Component {
      * and items from the Database
      */
     async deleteRecords() {
-        const { selectedCategories, selectedItems } = this.state;
+        const { selectedCategories, selectedItems, items, socket } = this.state;
         console.log('Selected categories: ', selectedCategories);
         console.log('Selected Items: ', selectedItems);
 
@@ -242,7 +253,22 @@ class App extends Component {
 
         if(response.success) {
             // TODO Show success dialogue
-            this.setState({ deleteConfirmOpen: false });
+            if(selectedItems.length > 0)  {
+                socket.emit('event', { type: 'ITEM_DELETE', id: socket.id, data: selectedItems });
+                selectedItems.forEach(deletedItem => {
+                    items[deletedItem.pid] = items[deletedItem.pid].filter(item => item.sid !== deletedItem.sid);
+                });
+
+                this.setState({
+                    items,
+                    deleteConfirmOpen: false,
+                    selectedItems: [],
+                    selectModeEnabled: false,
+                });
+            }
+            if(selectedCategories.length > 0) {
+                socket.emit('event', {type: 'CATEGORY_DELETE', id: socket.id, data: selectedCategories});
+            }
         } else {
             console.log('[ERROR] Failed to delete: ', response);
             // TODO Show error dialogue
