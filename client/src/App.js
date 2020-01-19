@@ -75,9 +75,16 @@ class App extends Component {
                     break;
                 case 'ITEM_CREATE':
                     console.log('[INFO] Item created');
-                    console.log('Event data: ', event);
-                    console.log(this.state.items[event.data.pid]);
-                    this.setState({ items: {...this.state.items, [event.data.pid]: [ ...this.state.items[event.data.pid], { pid: event.data.pid, sid: event.data.sid, name: event.data.name, quantity: event.name.quantity } ] } });
+                    console.log('Event: ', event);
+                    this.setState({
+                        items: {
+                            ...this.state.items,
+                            [event.data.pid]: [
+                                ...this.state.items[event.data.pid], {
+                                    ...event.data
+                                }]
+                        }
+                    });
                     break;
             }
         });
@@ -151,7 +158,18 @@ class App extends Component {
         })).json();
         console.log("[INFO] Successfully created new item: ", response);
         socket.emit('event', { type: 'ITEM_CREATE', id: socket.id, data: response });
-        this.setState({ addItemOpen: false, item: { quantity: 1, name: '' } })
+        // Images do not get updated here for now we just show the default image for this newly created item
+        this.setState({
+            addItemOpen: false,
+            item: { quantity: 1, name: '' },
+            items: {
+                ...this.state.items,
+                [response.pid]: [
+                    ...this.state.items[response.pid], {
+                        ...response,
+                    }]
+            }
+        })
     }
 
     /**

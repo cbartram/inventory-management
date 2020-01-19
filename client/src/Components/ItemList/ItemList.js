@@ -3,13 +3,11 @@ import './ItemList.css';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Item from "../Item/Item";
+import DefaultImage from '../../resources/images/default_image.png';
 import {Loader} from "semantic-ui-react";
 
 export default class ItemList extends Component {
     render() {
-        if(Object.keys(this.props.images).length === 0)
-            return <Loader active />;
-
         return (
           <List>
               {
@@ -19,7 +17,7 @@ export default class ItemList extends Component {
                             <Item
                                 onCheckChange={(checked) => this.props.onCheckChange(checked, { sid: listItem.sid, pid: listItem.pid })}
                                 selectMode={this.props.selectMode}
-                                image={this.props.images[listItem.name][0]}
+                                image={typeof this.props.images[listItem.name] === 'undefined' ? DefaultImage : this.props.images[listItem.name][0]}
                                 {...listItem}
                             />
                         </ListItem>
