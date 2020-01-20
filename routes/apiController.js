@@ -28,12 +28,12 @@ router.delete('/delete/all', async (req, res) => {
   }
   const ddb = new DynamoDB();
 
-  if(items.length !== 0) {
+  if (items.length !== 0) {
     const itemsResponse = await ddb.bulkDelete(items);
     NODE_ENV !== 'test' && console.log('[INFO] Delete Item(s) Response: {}', itemsResponse);
   }
 
-  if(categories.length !== 0) {
+  if (categories.length !== 0) {
     // TODO Get all the items of each category and delete them all as well. When a category is deleted so are its items
 
     const categoriesResponse = await ddb.bulkDelete(categories);

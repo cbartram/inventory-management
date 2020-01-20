@@ -10,7 +10,6 @@ const DynamoDB = require('../src/DynamoDB');
 const cache = require('../src/redis');
 
 
-
 /**
  * Creates a new item which is slotted in a specific category
  */
@@ -63,38 +62,38 @@ router.get('/flush', (req, res) => {
  */
 router.get('/all', async (req, res) => {
   try {
-  const { Items } = await new DynamoDB().findAllItems();
-  const promises = [];
-  const cachePromises = [];
-  Items.forEach((item) => {
-    console.log('[INFO] Checking Cache for item: ', item.name);
-    cachePromises.push(cache.getAsync(item.sid));
-  });
+    const { Items } = await new DynamoDB().findAllItems();
+    const promises = [];
+    const cachePromises = [];
+    Items.forEach((item) => {
+      console.log('[INFO] Checking Cache for item: ', item.name);
+      cachePromises.push(cache.getAsync(item.sid));
+    });
 
-  const cachedItems = await Promise.all(cachePromises);
-  cachedItems.forEach((item, idx) => {
-    const { name, sid } = Items[idx];
-    if (item == null) {
-      promises.push(request(`${GOOGLE_SEARCH_URL}${name}`).then((r) => {
-        const data = JSON.parse(r);
-        const images = data.items
+    const cachedItems = await Promise.all(cachePromises);
+    cachedItems.forEach((item, idx) => {
+      const { name, sid } = Items[idx];
+      if (item == null) {
+        promises.push(request(`${GOOGLE_SEARCH_URL}${name}`).then((r) => {
+          const data = JSON.parse(r);
+          const images = data.items
             .map(({ pagemap }) => {
               if (typeof pagemap === 'undefined' || typeof pagemap.cse_image === 'undefined') return [];
               return pagemap.cse_image.map((i) => i.src);
             }).reduce((prev, curr) => [...prev, ...curr]);
 
-        console.log(`Setting ${name} in the cache...`);
-        cache.set(sid, JSON.stringify({
+          console.log(`Setting ${name} in the cache...`);
+          cache.set(sid, JSON.stringify({
             ...Items[idx],
             images,
+          }));
+          return { ...Items[idx], images };
         }));
-        return { ...Items[idx], images };
-      }));
-    } else {
-      console.log(`[INFO] Found Cached Item: ${name}`);
-      promises.push(new Promise((resolve) => resolve(JSON.parse(item))));
-    }
-  });
+      } else {
+        console.log(`[INFO] Found Cached Item: ${name}`);
+        promises.push(new Promise((resolve) => resolve(JSON.parse(item))));
+      }
+    });
 
     await Promise.all(promises).then((data) => res.json(_.groupBy(data, 'pid')));
   } catch (e) {

@@ -11,12 +11,12 @@ const body = require('body-parser');
 const methodOverride = require('method-override');
 const cors = require('cors');
 const AWS = require('aws-sdk');
+
 const app = express();
 
 const { version } = require('./package');
 
 const port = process.env.PORT || 3010;
-
 
 
 app.set('view engine', 'ejs');
@@ -59,23 +59,25 @@ const server = app.listen(port, () => {
   });
 });
 
+// eslint-disable-next-line import/order
 const io = require('socket.io')(server);
+
 const clients = [];
 
-io.on("connection", socket => {
+io.on('connection', (socket) => {
   console.log('[INFO] Client Connected: ', socket.id);
   clients.push(socket);
 
   socket.on('event', (event) => {
     const otherClients = clients.filter(({ id }) => id !== event.id);
-    otherClients.forEach(client => {
+    otherClients.forEach((client) => {
       client.emit('event', event);
     });
   });
 
-  socket.on("disconnect", () => {
-    clients.filter(id => id !== socket.id);
-    console.log("[INFO] Client disconnected: ", socket.id);
+  socket.on('disconnect', () => {
+    clients.filter((id) => id !== socket.id);
+    console.log('[INFO] Client disconnected: ', socket.id);
   });
 });
 

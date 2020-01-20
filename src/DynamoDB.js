@@ -16,11 +16,11 @@ class DynamoDB {
       TableName: DYNAMODB_TABLE_NAME,
       FilterExpression: 'begins_with(#sid, :item)',
       ExpressionAttributeNames: {
-        '#sid': 'sid'
+        '#sid': 'sid',
       },
       ExpressionAttributeValues: {
         ':item': 'item-',
-      }
+      },
     };
     try {
       NODE_ENV !== 'test' && console.log('[INFO] Attempting to find all items...');
@@ -29,7 +29,7 @@ class DynamoDB {
       return response;
     } catch (err) {
       NODE_ENV !== 'test' && console.log('[ERROR] There was an error attempting to retrieve all items: ', err);
-      throw new Error(`There was an error attempting to retrieve all items.`);
+      throw new Error('There was an error attempting to retrieve all items.');
     }
   }
 
