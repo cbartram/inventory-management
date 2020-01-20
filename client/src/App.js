@@ -62,7 +62,6 @@ class App extends Component {
         // TODO it affects other pages when categories/items are added/deleted but not loaded into the other pages state
         const categories = await(await fetch(getRequestUrl(GET_ALL_CATEGORIES))).json();
         const items = await (await fetch(getRequestUrl(GET_ALL_ITEMS))).json();
-        const images = await(await fetch(getRequestUrl(GET_IMAGES))).json();
         const socket = socketIOClient(getSocketUrl());
 
         socket.on('event', event => {
@@ -110,7 +109,6 @@ class App extends Component {
             categories,
             activeCategory: categories[0].sid,
             items,
-            images: { [categories[0].sid]: images },
             isLoading: false
         });
     }
@@ -202,18 +200,11 @@ class App extends Component {
      * @returns {Promise<void>}
      */
     async updateActiveCategory(sid) {
-        const { images, items } = this.state;
+        const { items } = this.state;
 
         if(isUndefined(items[sid])) {
-            // TODO get images queries for all items under the hood and returns images for items might as well just return the items as well
-            const newImages = await (await fetch(getRequestUrl(GET_IMAGES) + sid)).json();
-
             this.setState({
                 activeCategory: sid,
-                images: {
-                    ...images,
-                    [sid]: newImages
-                },
                 items: {
                     ...items,
                     [sid]: [],
@@ -379,7 +370,6 @@ class App extends Component {
                                         onCheckChange={(checked, itemKey) => this.onItemSelectChange(checked, itemKey)}
                                         selectMode={this.state.selectModeEnabled}
                                         category={this.state.activeCategory}
-                                        images={this.state.images[this.state.activeCategory]}
                                         items={this.state.items[this.state.activeCategory]}
                                     /> :
                                     <AddItemsMessage onClick={() => this.setState({ addItemOpen: true })} />}
