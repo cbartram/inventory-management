@@ -33,6 +33,7 @@ router.post('/create', async (req, res) => {
     sid: `item-${id}`,
     name: req.body.name,
     quantity: req.body.quantity,
+    images: [],
   };
   const params = {
     TableName: 'inventory',
