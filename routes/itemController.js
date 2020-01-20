@@ -10,18 +10,6 @@ const DynamoDB = require('../src/DynamoDB');
 const cache = require('../src/redis');
 
 
-/**
- * Finds all items for all categories in a single
- * API call
- */
-router.get('/all', async (req, res) => {
-    try {
-      const { Items } = await new DynamoDB().findAllItems();
-      res.json(_.groupBy(Items, 'pid'));
-    } catch(e) {
-      console.log('[ERROR] Failed to retrieve all items from DynamoDB: ', e.message);
-    }
-});
 
 /**
  * Creates a new item which is slotted in a specific category
@@ -61,62 +49,57 @@ router.post('/create', async (req, res) => {
   }
 });
 
+// TODO Remove this (security risk)
+router.get('/flush', (req, res) => {
+  cache.flushdb((err, succeeded) => {
+    res.json(succeeded);
+  });
+});
+
 /**
- * Uses the google search API to find all images
- * for each item in the category. Leverages a redis cache to
- * pull items from the cache before wasting requests on the google API which has a free
- * limit of 100 requests per day.
+ * Finds all items & images for all categories and retrieves/stores them
+ * in a Redis cache if possible.
  */
-router.get('/image/query/:categoryId', async (req, res) => {
-  console.log('[INFO] Fetching images for search query: ', req.params.query);
-
+router.get('/all', async (req, res) => {
   try {
-    const { Items } = await new DynamoDB().findAllItemsByCategory(req.params.categoryId);
-    const promises = [];
-    const cachePromises = [];
-    Items.forEach(({ name }) => {
-      console.log('[INFO] Checking Cache for item: ', name);
-      cachePromises.push(cache.getAsync(name));
-    });
+  const { Items } = await new DynamoDB().findAllItems();
+  const promises = [];
+  const cachePromises = [];
+  Items.forEach((item) => {
+    console.log('[INFO] Checking Cache for item: ', item.name);
+    cachePromises.push(cache.getAsync(item.sid));
+  });
 
-
-    // TODO needs to return { name: [...] } instead of [{}, {}, {} ...]
-    const cachedItems = await Promise.all(cachePromises);
-    cachedItems.forEach((item, idx) => {
-      const { name } = Items[idx];
-      if (item == null) {
-        promises.push(request(`${GOOGLE_SEARCH_URL}${name}`).then((r) => {
-          const data = JSON.parse(r);
-          const images = data.items
+  const cachedItems = await Promise.all(cachePromises);
+  cachedItems.forEach((item, idx) => {
+    const { name, sid } = Items[idx];
+    if (item == null) {
+      promises.push(request(`${GOOGLE_SEARCH_URL}${name}`).then((r) => {
+        const data = JSON.parse(r);
+        const images = data.items
             .map(({ pagemap }) => {
               if (typeof pagemap === 'undefined' || typeof pagemap.cse_image === 'undefined') return [];
               return pagemap.cse_image.map((i) => i.src);
             }).reduce((prev, curr) => [...prev, ...curr]);
 
-          console.log(`Setting ${name} in the cache...`);
-          cache.set(name, JSON.stringify({ [name]: images }));
-          return { [name]: images };
+        console.log(`Setting ${name} in the cache...`);
+        cache.set(sid, JSON.stringify({
+            ...Items[idx],
+            images,
         }));
-      } else {
-        console.log(`[INFO] Found Cached Item: ${name}`);
-        promises.push(new Promise((resolve) => resolve(JSON.parse(item))));
-      }
-    });
+        return { ...Items[idx], images };
+      }));
+    } else {
+      console.log(`[INFO] Found Cached Item: ${name}`);
+      promises.push(new Promise((resolve) => resolve(JSON.parse(item))));
+    }
+  });
 
-    await Promise.all(promises).then((data) => {
-      res.json(data.reduce((prev, curr) => {
-        const key = Object.keys(curr)[0];
-        return {
-          ...prev,
-          [key]: curr[key],
-        };
-      }, {}));
-    });
+    await Promise.all(promises).then((data) => res.json(_.groupBy(data, 'pid')));
   } catch (e) {
     console.log(`[ERROR] Failed to fetch item images for category: ${req.params.categoryId}`, e);
   }
 });
-
 
 /**
  * Finds all items within a given category

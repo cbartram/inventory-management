@@ -62,7 +62,7 @@ class App extends Component {
         // TODO it affects other pages when categories/items are added/deleted but not loaded into the other pages state
         const categories = await(await fetch(getRequestUrl(GET_ALL_CATEGORIES))).json();
         const items = await (await fetch(getRequestUrl(GET_ALL_ITEMS))).json();
-        const images = await (await fetch(getRequestUrl(GET_IMAGES) + categories[0].sid)).json();
+        const images = await(await fetch(getRequestUrl(GET_IMAGES))).json();
         const socket = socketIOClient(getSocketUrl());
 
         socket.on('event', event => {
