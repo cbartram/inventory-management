@@ -14,6 +14,7 @@ export default class ItemList extends Component {
                       return (
                         <ListItem key={listItem.sid}>
                             <Item
+                                onQuantityChange={(type) => this.props.onQuantityChange(type, listItem)}
                                 onCheckChange={(checked) => this.props.onCheckChange(checked, { sid: listItem.sid, pid: listItem.pid })}
                                 selectMode={this.props.selectMode}
                                 image={listItem.images.length === 0 ? DefaultImage : listItem.images[0]}

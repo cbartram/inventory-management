@@ -59,10 +59,10 @@ export default function Item(props) {
                 </Typography>
               </CardContent>
               <div className={classes.controls}>
-                <IconButton aria-label="previous">
+                <IconButton aria-label="previous" onClick={() => props.onQuantityChange('minus')}>
                   <RemoveRoundedIcon className={classes.playIcon} />
                 </IconButton>
-                <IconButton aria-label="next">
+                <IconButton aria-label="next" onClick={() => props.onQuantityChange('plus')}>
                   <AddRoundedIcon className={classes.playIcon} />
                 </IconButton>
               </div>

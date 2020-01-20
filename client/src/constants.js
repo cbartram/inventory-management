@@ -26,7 +26,7 @@ export const getSocketUrl = () => {
  * @type {boolean} True if the application is running in prod and false otherwise.
  */
 export const IS_PROD = window.location.hostname !== 'localhost' || process.env.REACT_APP_NODE_ENV === 'production';
-export const PROD_URL = 'http://raspberry-pi.servebeer.com';
+export const PROD_URL = 'https://raspberry-pi.servebeer.com';
 export const DEV_URL = 'http://localhost:3010';
 
 // Endpoints

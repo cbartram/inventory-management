@@ -65,8 +65,6 @@ class App extends Component {
         socket.on('event', event => {
             switch(event.type) {
                 case 'CATEGORY_DELETE':
-                    console.log('Category Deleted');
-                    console.log('[INFO] Event: ', event);
                     this.setState({
                         categories: differenceBy(categories, event.data, 'sid'),
                     });
@@ -75,8 +73,6 @@ class App extends Component {
                     this.setState({ categories: [...this.state.categories, event.data], items: {...this.state.items, [event.data.sid]: [] } });
                     break;
                 case 'ITEM_DELETE':
-                    console.log('[INFO] Item deleted');
-                    console.log('[INFO] Event: ', event);
                     const { items } = this.state;
                     event.data.forEach(deletedItem => {
                         items[deletedItem.pid] = items[deletedItem.pid].filter(item => item.sid !== deletedItem.sid);
@@ -85,10 +81,6 @@ class App extends Component {
                     this.setState({ items });
                     break;
                 case 'ITEM_CREATE':
-                    console.log('[INFO] Item created');
-                    console.log('Event: ', event);
-                    console.log('[INFO] Items: ', this.state.items);
-                    console.log('Iterable? :', this.state.items[event.data.pid]);
                     this.setState({
                         items: {
                             ...this.state.items,
@@ -301,6 +293,14 @@ class App extends Component {
         }
     }
 
+    async handleItemQuantityChange(type, item) {
+        if(type.toUpperCase() === 'PLUS') {
+            console.log('Adding to ', item.name);
+        } else {
+            console.log('Subtracting from ', item.name);
+        }
+    }
+
     render() {
         if(this.state.isLoading)
             return <Loader active />;
@@ -367,6 +367,7 @@ class App extends Component {
                                     </div>
                                 </div>
                                 { this.state.items[this.state.activeCategory].length > 0 ? <ItemList
+                                        onQuantityChange={(type, item) => this.handleItemQuantityChange(type, item)}
                                         onCheckChange={(checked, itemKey) => this.onItemSelectChange(checked, itemKey)}
                                         selectMode={this.state.selectModeEnabled}
                                         category={this.state.activeCategory}
