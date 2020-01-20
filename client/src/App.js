@@ -74,7 +74,7 @@ class App extends Component {
                     });
                     break;
                 case 'CATEGORY_CREATE':
-                    this.setState({ categories: [...this.state.categories, event.data] });
+                    this.setState({ categories: [...this.state.categories, event.data], items: {...this.state.items, [event.data.sid]: [] } });
                     break;
                 case 'ITEM_DELETE':
                     console.log('[INFO] Item deleted');
