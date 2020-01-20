@@ -4,7 +4,6 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Item from "../Item/Item";
 import DefaultImage from '../../resources/images/default_image.png';
-import {Loader} from "semantic-ui-react";
 
 export default class ItemList extends Component {
     render() {

@@ -9,8 +9,6 @@ import {
     GET_ALL_CATEGORIES,
     CREATE_CATEGORY,
     CREATE_ITEM,
-    GET_ITEMS,
-    GET_IMAGES,
     DELETE_ALL, getSocketUrl, GET_ALL_ITEMS,
 } from "./constants";
 import Category from "./Components/Category/Category";
@@ -101,6 +99,8 @@ class App extends Component {
                         }
                     });
                     break;
+                default:
+                    console.log('[INFO] Default case not sure what to do with message: ', event);
             }
         });
 
