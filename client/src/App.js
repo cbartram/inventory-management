@@ -295,7 +295,15 @@ class App extends Component {
 
     async handleItemQuantityChange(type, item) {
         if(type.toUpperCase() === 'PLUS') {
-            console.log('Adding to ', item.name);
+            const response = await ( await fetch(getRequestUrl(), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-HTTP-Method-Override': 'PUT'
+                },
+                body: JSON.stringify({ type: 'INCREMENT', item: { pid: item.pid, sid: item.sid }})
+            })).json();
         } else {
             console.log('Subtracting from ', item.name);
         }

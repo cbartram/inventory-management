@@ -101,6 +101,36 @@ class DynamoDB {
     }
   }
 
+  /**
+   * Increments or decrements a key within Dynamodb by one
+   * @param key Object the pid and sid key in DynamoDB to update
+   * @param increment Boolean true if we should increment the value and false otherwise
+   * @returns {Promise<void>}
+   */
+  async update(key, increment = true) {
+    const params = {
+      TableName: DYNAMODB_TABLE_NAME,
+      Key: key,
+      UpdateExpression: 'set #quantity = #quantity + :val',
+      ExpressionAttributeNames: {'#quantity' : 'quantity'},
+      ExpressionAttributeValues: {
+        ':val' : 1
+      },
+      ReturnValues: 'UPDATED_NEW'
+    };
+
+    if(!increment) params.UpdateExpression = 'set #quantity = #quantity - :val';
+
+    try {
+      NODE_ENV !== 'test' && console.log('[INFO] Attempting to update item: ', key);
+      const response = await this.client.update(params).promise();
+      return response;
+    } catch (e) {
+      NODE_ENV !== 'test' && console.log('[ERROR] There was an error attempting to update the specified item: ', key, e);
+      throw new Error(`There was an error attempting to update the specified item ${key}`);
+    }
+  }
+
 
   /**
    * Returns the underlying DynamoDB document client

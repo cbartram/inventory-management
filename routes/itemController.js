@@ -18,11 +18,13 @@ router.post('/create', async (req, res) => {
   if (!req.body.name || !req.body.quantity) {
     NODE_ENV !== 'test' && console.log(`[ERROR] Name or Quantity values missing from request body. Name = ${req.body.name} Quantity = ${req.body.quantity}`);
     res.json({ error: true, message: `Name or Quantity values missing from request body. Name = ${req.body.name} Quantity = ${req.body.quantity}` });
+    return;
   }
 
   if (!req.body.category) {
     NODE_ENV !== 'test' && console.log(`[ERROR] Category value missing from request body. Category = ${req.body.category}`);
     res.json({ error: true, message: `Category value missing from request body. Category = ${req.body.category}` });
+    return;
   }
 
   NODE_ENV !== 'test' && console.log(`[INFO] Attempting to create item ${req.body.name} for category ${req.body.category}`);
@@ -54,6 +56,28 @@ router.get('/flush', (req, res) => {
   cache.flushdb((err, succeeded) => {
     res.json(succeeded);
   });
+});
+
+/**
+ *
+ */
+router.put('/update', async (req, res) => {
+  if(!req.body.type || !req.body.item) {
+    console.log('[ERROR] Type or Item is missing from the request body.');
+    res.status(500);
+    res.json({ success: false, message: 'Type or Item is missing from the request body.'});
+    return;
+  }
+  const ddb = new DynamoDB();
+
+  try {
+    const response = await ddb.update(req.body.item, req.body.type.toUpperCase() === 'INCREMENT');
+    res.json({ ...response.Attributes, ...req.body.item });
+  } catch(e) {
+    console.log('[ERROR] Failed to update the item: ', req.body.item);
+    res.status(500);
+    res.json({ success: false, message: `Failed to update the item: ${req.body.item}. Message = ${e.message}` });
+  }
 });
 
 /**
@@ -98,6 +122,8 @@ router.get('/all', async (req, res) => {
     await Promise.all(promises).then((data) => res.json(_.groupBy(data, 'pid')));
   } catch (e) {
     console.log(`[ERROR] Failed to fetch item images for category: ${req.params.categoryId}`, e);
+    res.status(500);
+    res.json({ success: false, message: `[ERROR] Failed to fetch item images for category: ${req.params.categoryId}. Message: ${e.message}`});
   }
 });
 
@@ -108,6 +134,7 @@ router.get('/:categoryId', async (req, res) => {
   if (!req.params.categoryId) {
     console.log('[ERROR] Category Id is missing from the request parameters: Category Id = ', req.params.categoryId);
     res.json({ error: true, message: `Category Id is missing from the request parameters: Category Id = ${req.params.categoryId}` });
+    return;
   }
 
   try {
