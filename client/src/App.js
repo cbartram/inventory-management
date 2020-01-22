@@ -9,7 +9,7 @@ import {
     GET_ALL_CATEGORIES,
     CREATE_CATEGORY,
     CREATE_ITEM,
-    DELETE_ALL, getSocketUrl, GET_ALL_ITEMS,
+    DELETE_ALL, getSocketUrl, GET_ALL_ITEMS, UPDATE_ITEM,
 } from "./constants";
 import Category from "./Components/Category/Category";
 import CreateCategoryModal from "./Components/CreateCategoryModal/CreateCategoryModal";
@@ -294,8 +294,10 @@ class App extends Component {
     }
 
     async handleItemQuantityChange(type, item) {
+        // TODO Combine these requests so just the body is updated
+        // TODO also its pulling the item from the cache not from DDB so when this action occurs invalidate cache for the specified item
         if(type.toUpperCase() === 'PLUS') {
-            const response = await ( await fetch(getRequestUrl(), {
+            const response = await ( await fetch(getRequestUrl(UPDATE_ITEM), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -304,8 +306,19 @@ class App extends Component {
                 },
                 body: JSON.stringify({ type: 'INCREMENT', item: { pid: item.pid, sid: item.sid }})
             })).json();
+            console.log('[INFO] Update response increment: ', response);
         } else {
             console.log('Subtracting from ', item.name);
+            const response = await ( await fetch(getRequestUrl(UPDATE_ITEM), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-HTTP-Method-Override': 'PUT'
+                },
+                body: JSON.stringify({ type: 'DECREMENT', item: { pid: item.pid, sid: item.sid }})
+            })).json();
+            console.log('[INFO] Update response decrement: ', response);
         }
     }
 
