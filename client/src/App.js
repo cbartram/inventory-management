@@ -63,6 +63,7 @@ class App extends Component {
         const socket = socketIOClient(getSocketUrl());
 
         socket.on('event', event => {
+            const { items } = this.state;
             switch(event.type) {
                 case 'CATEGORY_DELETE':
                     this.setState({
@@ -73,12 +74,22 @@ class App extends Component {
                     this.setState({ categories: [...this.state.categories, event.data], items: {...this.state.items, [event.data.sid]: [] } });
                     break;
                 case 'ITEM_DELETE':
-                    const { items } = this.state;
                     event.data.forEach(deletedItem => {
                         items[deletedItem.pid] = items[deletedItem.pid].filter(item => item.sid !== deletedItem.sid);
                     });
 
                     this.setState({ items });
+                    break;
+                case 'ITEM_QUANTITY_UPDATE':
+                    this.setState({
+                        items: {
+                            ...items,
+                            [event.data.pid]: [...items[event.data.pid].map(i => {
+                                if(i.sid === event.data.sid) return { ...i, quantity: event.data.quantity };
+                                return i;
+                            }),]
+                        }
+                    });
                     break;
                 case 'ITEM_CREATE':
                     this.setState({
@@ -294,32 +305,37 @@ class App extends Component {
     }
 
     async handleItemQuantityChange(type, item) {
-        // TODO Combine these requests so just the body is updated
+        const { items, socket } = this.state;
+        let body;
         // TODO also its pulling the item from the cache not from DDB so when this action occurs invalidate cache for the specified item
         if(type.toUpperCase() === 'PLUS') {
-            const response = await ( await fetch(getRequestUrl(UPDATE_ITEM), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-HTTP-Method-Override': 'PUT'
-                },
-                body: JSON.stringify({ type: 'INCREMENT', item: { pid: item.pid, sid: item.sid }})
-            })).json();
-            console.log('[INFO] Update response increment: ', response);
+            body = { type: 'INCREMENT', item: { pid: item.pid, sid: item.sid }};
         } else {
             console.log('Subtracting from ', item.name);
-            const response = await ( await fetch(getRequestUrl(UPDATE_ITEM), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-HTTP-Method-Override': 'PUT'
-                },
-                body: JSON.stringify({ type: 'DECREMENT', item: { pid: item.pid, sid: item.sid }})
-            })).json();
-            console.log('[INFO] Update response decrement: ', response);
+            body = { type: 'DECREMENT', item: { pid: item.pid, sid: item.sid }}
         }
+
+        const response = await ( await fetch(getRequestUrl(UPDATE_ITEM), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-HTTP-Method-Override': 'PUT'
+            },
+            body: JSON.stringify(body)
+        })).json();
+
+        console.log('[INFO] Update quantity response: ', response);
+        socket.emit('event', { type: 'ITEM_QUANTITY_UPDATE', id: socket.id, data: response });
+        this.setState({
+            items: {
+                ...this.state.items,
+                [item.pid]: [...items[item.pid].map(i => {
+                    if(i.sid === response.sid) return { ...i, quantity: response.quantity };
+                    return i;
+                }),]
+            }
+        });
     }
 
     render() {

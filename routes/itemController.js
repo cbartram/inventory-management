@@ -72,7 +72,13 @@ router.put('/update', async (req, res) => {
 
   try {
     const response = await ddb.update(req.body.item, req.body.type.toUpperCase() === 'INCREMENT');
-    res.json({ ...response.Attributes, ...req.body.item });
+
+    // Evict this item from the cache otherwise next time the user refreshes the page
+    // it will pull the old cached items quantity in the response
+    cache.del(req.body.item.sid, (err, resp) => {
+      console.log(`[INFO] Evicting ${response.name} from cache`, err, resp);
+      res.json({ ...response.Attributes, ...req.body.item });
+    });
   } catch(e) {
     console.log('[ERROR] Failed to update the item: ', req.body.item);
     res.status(500);
