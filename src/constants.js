@@ -3,7 +3,7 @@
  * @type {string}
  */
 const DYNAMODB_TABLE_NAME = 'inventory';
-const REDIS_HOST = 'raspberry-pi.servebeer.com';
+const REDIS_HOST = 'localhost';
 
 module.exports = {
   REDIS_HOST,

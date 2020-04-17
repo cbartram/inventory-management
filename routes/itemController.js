@@ -62,10 +62,10 @@ router.get('/flush', (req, res) => {
  *
  */
 router.put('/update', async (req, res) => {
-  if(!req.body.type || !req.body.item) {
+  if (!req.body.type || !req.body.item) {
     console.log('[ERROR] Type or Item is missing from the request body.');
     res.status(500);
-    res.json({ success: false, message: 'Type or Item is missing from the request body.'});
+    res.json({ success: false, message: 'Type or Item is missing from the request body.' });
     return;
   }
   const ddb = new DynamoDB();
@@ -79,7 +79,7 @@ router.put('/update', async (req, res) => {
       console.log(`[INFO] Evicting ${response.name} from cache`, err, resp);
       res.json({ ...response.Attributes, ...req.body.item });
     });
-  } catch(e) {
+  } catch (e) {
     console.log('[ERROR] Failed to update the item: ', req.body.item);
     res.status(500);
     res.json({ success: false, message: `Failed to update the item: ${req.body.item}. Message = ${e.message}` });
@@ -129,7 +129,7 @@ router.get('/all', async (req, res) => {
   } catch (e) {
     console.log(`[ERROR] Failed to fetch item images for category: ${req.params.categoryId}`, e);
     res.status(500);
-    res.json({ success: false, message: `[ERROR] Failed to fetch item images for category: ${req.params.categoryId}. Message: ${e.message}`});
+    res.json({ success: false, message: `[ERROR] Failed to fetch item images for category: ${req.params.categoryId}. Message: ${e.message}` });
   }
 });
 

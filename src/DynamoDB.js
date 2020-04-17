@@ -112,14 +112,14 @@ class DynamoDB {
       TableName: DYNAMODB_TABLE_NAME,
       Key: key,
       UpdateExpression: 'set #quantity = #quantity + :val',
-      ExpressionAttributeNames: {'#quantity' : 'quantity'},
+      ExpressionAttributeNames: { '#quantity': 'quantity' },
       ExpressionAttributeValues: {
-        ':val' : 1
+        ':val': 1,
       },
-      ReturnValues: 'UPDATED_NEW'
+      ReturnValues: 'UPDATED_NEW',
     };
 
-    if(!increment) params.UpdateExpression = 'set #quantity = #quantity - :val';
+    if (!increment) params.UpdateExpression = 'set #quantity = #quantity - :val';
 
     try {
       NODE_ENV !== 'test' && console.log('[INFO] Attempting to update item: ', key);

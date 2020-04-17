@@ -9,7 +9,7 @@ const { REDIS_HOST } = require('./constants');
 
 let cache;
 try {
-  cache = redis.createClient({ host: REDIS_HOST, password: REDIS_PASSWORD, });
+  cache = redis.createClient({ host: process.env.REDIS_HOST || REDIS_HOST, password: REDIS_PASSWORD });
 } catch (e) {
   console.log('[ERROR] Failed to connect to redis client: ', e);
 }
